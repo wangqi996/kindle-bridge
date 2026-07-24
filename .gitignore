@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.kindle-bridge-temp/
+*.tgz
+coverage/
+.env
+.env.*

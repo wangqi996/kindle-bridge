@@ -1,0 +1,49 @@
+{
+  "name": "kindle-bridge",
+  "version": "0.1.0",
+  "description": "Local-first Kindle content delivery CLI tool",
+  "main": "dist/cli/index.js",
+  "bin": {
+    "kindle": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "kindle": "ts-node src/cli/index.ts",
+    "test": "vitest run",
+    "prepack": "npm run build"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "kindle",
+    "epub",
+    "cli",
+    "send-to-kindle"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "commander": "^13.1.0",
+    "jszip": "^3.10.1",
+    "marked": "^15.0.7",
+    "mime-types": "^2.1.35",
+    "nodemailer": "^6.10.0",
+    "playwright": "^1.50.1",
+    "sanitize-html": "^2.14.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^22.13.4",
+    "@types/nodemailer": "^6.4.17",
+    "@types/sanitize-html": "^2.13.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.6"
+  }
+}
