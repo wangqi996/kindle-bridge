@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <style>
+      .title { font: 700 30px "Microsoft YaHei", sans-serif; fill: #152238; }
+      .step { font: 700 24px "Microsoft YaHei", sans-serif; fill: #1677ff; }
+      .label { font: 600 21px "Microsoft YaHei", sans-serif; fill: #253858; }
+      .small { font: 18px "Microsoft YaHei", sans-serif; fill: #52616b; }
+      .panel { fill: #f7faff; stroke: #c7d7ee; stroke-width: 2; rx: 18; }
+      .hot { fill: #fff1f0; stroke: #f04438; stroke-width: 4; rx: 10; }
+      .button { fill: #1677ff; rx: 8; }
+      .buttonText { font: 700 19px "Microsoft YaHei", sans-serif; fill: #fff; }
+      .arrow { stroke: #1677ff; stroke-width: 5; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1677ff"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="900" fill="#ffffff"/>
+  <text x="50" y="55" class="title">QQ 邮箱授权码：无浏览器自动化时的手动路径</text>
+  <text x="50" y="88" class="small">界面文字可能小幅变化，但层级必须完整：设置 → 账号与安全 → 安全设置 → 邮箱服务</text>
+
+  <rect x="45" y="125" width="1110" height="200" class="panel"/>
+  <text x="75" y="165" class="step">1　QQ 邮箱首页</text>
+  <rect x="75" y="190" width="1020" height="95" fill="#eaf2fb" rx="10"/>
+  <text x="105" y="247" class="label">QQ 邮箱　　收件箱　　　　　　　　　　　　　　　　头像</text>
+  <rect x="955" y="205" width="115" height="58" class="hot"/>
+  <text x="980" y="243" class="label">⚙ 设置</text>
+  <text x="75" y="310" class="small">位置：邮箱界面右上角。点击“设置”，不是在邮件列表中寻找。</text>
+
+  <path d="M600 325 L600 365" class="arrow"/>
+
+  <rect x="45" y="375" width="1110" height="205" class="panel"/>
+  <text x="75" y="415" class="step">2　邮箱设置页</text>
+  <rect x="75" y="440" width="250" height="105" fill="#eaf2fb" rx="10"/>
+  <text x="100" y="478" class="small">通用</text>
+  <text x="100" y="510" class="small">应用管理</text>
+  <rect x="90" y="520" width="215" height="48" class="hot"/>
+  <text x="112" y="552" class="label">账号与安全 ↗</text>
+  <text x="365" y="485" class="label">点击左侧靠下的“账号与安全”</text>
+  <text x="365" y="525" class="small">它会进入一个新的“账号与安全”页面；此时还没有到邮箱服务。</text>
+  <text x="365" y="558" class="small">不要在当前“账号设置”内容区直接向下寻找协议服务。</text>
+
+  <path d="M600 580 L600 620" class="arrow"/>
+
+  <rect x="45" y="630" width="1110" height="225" class="panel"/>
+  <text x="75" y="670" class="step">3　账号与安全页面</text>
+  <rect x="75" y="695" width="1020" height="125" fill="#eaf2fb" rx="10"/>
+  <text x="105" y="732" class="small">账号设置</text>
+  <rect x="230" y="702" width="135" height="48" class="hot"/>
+  <text x="252" y="734" class="label">安全设置</text>
+  <text x="390" y="732" class="small">设备管理</text>
+  <rect x="105" y="760" width="710" height="43" class="hot"/>
+  <text x="125" y="790" class="label">POP3/IMAP/SMTP/Exchange/CardDAV 服务</text>
+  <rect x="850" y="760" width="190" height="43" class="button"/>
+  <text x="885" y="789" class="buttonText">生成授权码</text>
+  <text x="75" y="845" class="small">先进入“安全设置”，再找到邮箱服务；开启后完成验证并复制 16 位授权码。</text>
+  <text x="75" y="880" class="small">复制后先保留在剪贴板，不要发到聊天，也不要提前寻找第二个输入框。</text>
+</svg>

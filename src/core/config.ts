@@ -50,3 +50,10 @@ export function saveConfig(config: Partial<KindleConfig>): KindleConfig {
   fs.writeFileSync(getConfigPath(), JSON.stringify(updated, null, 2), 'utf-8');
   return updated;
 }
+
+export function clearConfig(): void {
+  const configPath = getConfigPath();
+  if (fs.existsSync(configPath)) {
+    fs.unlinkSync(configPath);
+  }
+}

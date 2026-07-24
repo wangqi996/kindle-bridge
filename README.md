@@ -49,7 +49,7 @@ npm run build
 npx ts-node src/cli/index.ts connect --provider qq
 
 # Agent 已完成 QQ/Amazon 浏览器导航与核对后续接
-node dist/cli/index.js connect --provider qq --agent-assisted --smtp-user "user@qq.com" --kindle-email "your_name@kindle.com"
+node dist/cli/index.js connect --provider qq --agent-assisted --test-send-confirmed --smtp-user "user@qq.com" --kindle-email "your_name@kindle.com"
 
 # 方式 A：命令行交互向导
 npx ts-node src/cli/index.ts connect
@@ -107,6 +107,17 @@ node dist/cli/index.js --json confirm "job_xxx"
 ```
 
 最终成功状态为 `device_confirmed`，并且 `verified` 必须为 `true`。
+
+### 7. 清空本机状态并重新测试 (Reset)
+
+清除本机连接配置、Windows 保护的凭据和任务历史，不删除项目源码，也不会撤销 QQ 邮箱服务器上的授权码：
+
+```powershell
+node dist/cli/index.js reset
+
+# 用户已在 Agent 对话中明确同意清除时
+node dist/cli/index.js --json reset --yes
+```
 
 ---
 

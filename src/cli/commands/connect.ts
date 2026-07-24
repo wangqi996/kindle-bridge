@@ -26,6 +26,7 @@ export function registerConnectCommand(program: Command) {
     .option('--kindle-email <email>', 'Kindle 接收邮箱 (如 username@kindle.com)')
     .option('--browser', '启动浏览器协助定位 Amazon Send-to-Kindle 设置', false)
     .option('--agent-assisted', 'Agent 已完成浏览器导航与设置核对', false)
+    .option('--test-send-confirmed', '用户已在 Agent 对话中明确同意发送测试书', false)
     .action(async (options: {
       region?: string;
       provider?: string;
@@ -34,6 +35,7 @@ export function registerConnectCommand(program: Command) {
       smtpUser?: string;
       kindleEmail?: string;
       agentAssisted?: boolean;
+      testSendConfirmed?: boolean;
       browser?: boolean;
     }) => {
       const globalOpts = program.opts();
@@ -83,6 +85,10 @@ export function registerConnectCommand(program: Command) {
       let testEpubPath: string | undefined;
 
       try {
+        if (options.testSendConfirmed && !options.agentAssisted) {
+          throw new Error('--test-send-confirmed 只能与 --agent-assisted 一起使用');
+        }
+
         let discoveredKindleEmail: string | undefined = undefined;
 
         // Option 1: Browser Wizard
@@ -122,30 +128,34 @@ export function registerConnectCommand(program: Command) {
           smtpHost = 'smtp.qq.com';
           smtpPort = 465;
 
-          const qqMailUrl = 'https://mail.qq.com/';
-          logger.info('\n2. 正在用系统默认浏览器打开 QQ 邮箱。');
-          logger.info(`   如果浏览器没有自动打开，请访问: ${qqMailUrl}`);
-          logger.info('   登录后依次查找：设置 → 账号与安全（或账户）→ POP3/IMAP/SMTP 服务。');
-          logger.info('   开启 IMAP/SMTP 或 POP3/SMTP 服务，完成安全验证并复制生成的 16 位授权码。');
-          logger.info('   如果当前 Agent 具备浏览器控制能力，应由 Agent 先导航到设置页，只把安全验证和授权码交给用户。');
           if (!options.agentAssisted) {
+            const qqMailUrl = 'https://mail.qq.com/';
+            logger.info('\n2. 正在用系统默认浏览器打开 QQ 邮箱。');
+            logger.info(`   如果浏览器没有自动打开，请访问: ${qqMailUrl}`);
+            logger.info('   登录后依次查找：右上角“设置” → 左下“账号与安全” → “安全设置” → POP3/IMAP/SMTP/Exchange/CardDAV 服务。');
+            logger.info('   开启服务，完成安全验证并复制生成的 16 位授权码。');
             openInSystemBrowser(qqMailUrl);
+          } else {
+            logger.info('\n浏览器设置已由 Agent 核对完成。');
           }
-          smtpPass = await askSecret('3. 生成授权码后直接粘贴到这里（不会显示，也不要发送到聊天中）: ');
+          smtpPass = await askSecret(
+            options.agentAssisted
+              ? '请粘贴刚刚复制的 QQ 授权码（输入不会显示）: '
+              : '3. 生成授权码后直接粘贴到这里（不会显示，也不要发送到聊天中）: '
+          );
           if (!/^[A-Za-z0-9]{16}$/.test(smtpPass)) {
             throw new Error('QQ 邮箱授权码应为 16 位字符；请勿输入 QQ 密码或留空');
           }
 
-          const amazonSettingsUrl = options.region === 'amazon.cn'
-            ? 'https://www.amazon.cn/mycd'
-            : 'https://www.amazon.com/mycd';
-          logger.info('\n4. 正在用系统默认浏览器打开 Amazon“管理我的内容和设备”。');
-          logger.info(`   如果浏览器没有自动打开，请访问: ${amazonSettingsUrl}`);
-          logger.info('   进入“偏好设置/Preferences”→“个人文档设置/Personal Document Settings”。');
-          logger.info('   在“Send-to-Kindle 电子邮箱设置”中找到你的 Kindle 接收地址。');
-          logger.info(`   在“认可的个人文档电子邮箱列表”中添加 ${maskEmail(smtpUser)}。`);
-          logger.info('   如果当前 Agent 具备浏览器控制能力，应由 Agent 定位并读取这两项；提交新增认可发件人前仍需用户确认。');
           if (!options.agentAssisted) {
+            const amazonSettingsUrl = options.region === 'amazon.cn'
+              ? 'https://www.amazon.cn/mycd'
+              : 'https://www.amazon.com/mycd';
+            logger.info('\n4. 正在用系统默认浏览器打开 Amazon“管理我的内容和设备”。');
+            logger.info(`   如果浏览器没有自动打开，请访问: ${amazonSettingsUrl}`);
+            logger.info('   进入“偏好设置/Preferences”→“个人文档设置/Personal Document Settings”。');
+            logger.info('   在“Send-to-Kindle 电子邮箱设置”中找到你的 Kindle 接收地址。');
+            logger.info(`   在“认可的个人文档电子邮箱列表”中添加 ${maskEmail(smtpUser)}。`);
             openInSystemBrowser(amazonSettingsUrl);
           }
 
@@ -218,7 +228,9 @@ export function registerConnectCommand(program: Command) {
           logger.info(`  发件邮箱: ${maskEmail(smtpUser)}`);
           logger.info(`  SMTP 服务: ${smtpHost}:${smtpPort}`);
           logger.info('  请确认发件邮箱已加入 Amazon“已认可的个人文档发件人列表”。');
-          const confirmation = (await askQuestion('确认现在发送一本测试书？请输入 yes 继续，其他内容取消: ')).toLowerCase();
+          const confirmation = options.testSendConfirmed
+            ? 'yes'
+            : (await askQuestion('确认现在发送一本测试书？请输入 yes 继续，其他内容取消: ')).toLowerCase();
           if (confirmation !== 'yes') {
             const cancelledOutput: MachineOutput = {
               ok: false,

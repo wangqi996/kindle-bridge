@@ -5,6 +5,7 @@ import { registerSendCommand } from './commands/send';
 import { registerStatusCommand } from './commands/status';
 import { registerDoctorCommand } from './commands/doctor';
 import { registerConfirmCommand } from './commands/confirm';
+import { registerResetCommand } from './commands/reset';
 
 const program = new Command();
 
@@ -20,5 +21,6 @@ registerSendCommand(program);
 registerStatusCommand(program);
 registerDoctorCommand(program);
 registerConfirmCommand(program);
+registerResetCommand(program);
 
 program.parse(process.argv);

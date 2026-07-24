@@ -91,3 +91,12 @@ export function listRecentJobs(limit: number = 10): JobRecord[] {
 
   return jobs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, limit);
 }
+
+export function clearJobs(): number {
+  const jobsDir = getJobsDir();
+  const files = fs.readdirSync(jobsDir).filter(file => file.endsWith('.json'));
+  for (const file of files) {
+    fs.unlinkSync(path.join(jobsDir, file));
+  }
+  return files.length;
+}

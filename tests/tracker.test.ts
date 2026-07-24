@@ -2,7 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { createJob, getJob, updateJobStatus } from '../src/core/tracker';
+import { clearJobs, createJob, getJob, listRecentJobs, updateJobStatus } from '../src/core/tracker';
 
 describe('Job tracker output lifecycle', () => {
   const originalLocalAppData = process.env.LOCALAPPDATA;
@@ -24,5 +24,13 @@ describe('Job tracker output lifecycle', () => {
     updateJobStatus(job.jobId, 'validated', 'cleaned', { outputPath: null });
 
     expect(getJob(job.jobId)?.outputPath).toBeUndefined();
+  });
+
+  it('clears local job history for a fresh onboarding test', () => {
+    createJob('first.md');
+    createJob('second.md');
+
+    expect(clearJobs()).toBe(2);
+    expect(listRecentJobs()).toEqual([]);
   });
 });

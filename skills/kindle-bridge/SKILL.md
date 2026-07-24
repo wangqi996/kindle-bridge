@@ -58,22 +58,23 @@ Follow these stages in order:
 
 1. Open QQ Mail in an available browser that can use the user's existing session.
 2. If login is required, pause with the reply phrase `QQ已登录`.
-3. Navigate to the QQ authorization-code page. Let the user handle security verification and copy the complete 16-character code. Pause with `授权码已复制`.
-4. Open Amazon Manage Your Content and Devices.
-5. If login is required, pause with `Amazon已登录`.
-6. Read the Kindle receiving address and check whether the QQ sender is already approved.
-7. If approval is missing, ask before adding it. Do not submit the account change without confirmation.
-8. Start an interactive local terminal:
+3. Navigate through the complete QQ hierarchy: upper-right `设置` → lower-left `账号与安全` → separate-page `安全设置` → `POP3/IMAP/SMTP/Exchange/CardDAV 服务`. When browser control is unavailable, show the diagram in the state-machine reference and guide one click at a time.
+4. Let the user handle security verification and copy the complete 16-character code. Pause with `授权码已复制`. Tell the user to keep it in the clipboard and not paste it yet.
+5. Do not start the CLI yet. Open Amazon Manage Your Content and Devices.
+6. If login is required, pause with `Amazon已登录`.
+7. Read the Kindle receiving address and check whether the QQ sender is already approved.
+8. If approval is missing, ask before adding it. Do not submit the account change without confirmation.
+9. Explain that pasting the authorization code will immediately send one test EPUB. Obtain the chat reply `允许发送测试书`.
+10. Only after QQ, Amazon, and test approval are complete, start an interactive local terminal:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\skills\kindle-bridge\scripts\run-kindle-bridge.ps1 connect --provider qq --agent-assisted --smtp-user "<QQ address>" --kindle-email "<Kindle address>"
+powershell -ExecutionPolicy Bypass -File .\skills\kindle-bridge\scripts\run-kindle-bridge.ps1 connect --provider qq --agent-assisted --test-send-confirmed --smtp-user "<QQ address>" --kindle-email "<Kindle address>"
 ```
 
-9. Tell the user to paste the copied code into the hidden prompt and reply `授权码已粘贴`.
-10. At the CLI send confirmation, explain that a test EPUB will be sent to the user's Kindle. Tell the user to enter `yes` and reply `测试发送已确认`.
-11. Run `--json status` and `--json doctor`. Treat `provider_accepted` only as server acceptance, not device success.
-12. Tell the user to sync the Kindle and find `Kindle Bridge 首次连接测试书`. Require either `Kindle已收到` or `Kindle未收到`.
-13. Only after `Kindle已收到`, run:
+11. Tell the user to paste the copied code into the single hidden prompt and reply `授权码已粘贴`. Do not ask for `yes`; the Agent already obtained approval.
+12. Run `--json status` and `--json doctor`. Treat `provider_accepted` only as server acceptance, not device success.
+13. Tell the user to sync the Kindle and find `Kindle Bridge 首次连接测试书`. Require either `Kindle已收到` or `Kindle未收到`.
+14. Only after `Kindle已收到`, run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\skills\kindle-bridge\scripts\run-kindle-bridge.ps1 --json confirm
@@ -109,5 +110,6 @@ powershell -ExecutionPolicy Bypass -File .\skills\kindle-bridge\scripts\run-kind
 - If SMTP rejects the message, keep credentials unmodified and guide the user back to QQ authorization-code generation.
 - If Amazon rejects or the device does not receive the document, inspect the approved sender list and Amazon email notifications before regenerating credentials.
 - If browser control is unavailable, open the official page with the system browser and give one click target at a time. Preserve the same fixed reply phrases.
+- Keep the Agent as the workflow controller. In Agent-assisted mode, use the terminal only for the single hidden authorization-code input and progress output.
 
 Use [CLI contract](references/cli-contract.md) for command outputs and status semantics.
