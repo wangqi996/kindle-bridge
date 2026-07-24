@@ -26,9 +26,9 @@ Kindle Bridge 是一个本地优先的 Kindle 内容投递 CLI 工具。为保�
 
 ### 3. 本地存储与凭据安全 (Security & Sensitive Data Masking)
 - **规范**:
-  - **配置文件**: 放置于用户目录 `%APPDATA%\kindle-bridge\config.json`（不含任何明文凭据/密码/全量邮箱）。
+  - **CLI 内部状态**: 由 CLI 独占维护于当前用户应用数据目录；用户与 Agent 不直接查找、读取或编辑底层文件。
   - **任务历史**: 持久化于 `%LOCALAPPDATA%\kindle-bridge\jobs\job_<id>.json`。
-  - **系统凭据库**: 邮箱 OAuth/SMTP 凭据使用 Windows Credential Manager / 加密机密库存储，绝不出明文 JSON 文件。
+  - **系统凭据库**: 邮箱 OAuth/SMTP 凭据使用 Windows 当前用户 DPAPI 加密存储，绝不以明文写入文件。
   - **日志脱敏**: Logger 统一实现敏感数据脱敏过滤器，将邮箱地址格式化为 `w***@kindle.com`，且在调试日志中同样禁止输出 Cookie、密码或全文正文。
 
 ### 4. 任务状态与错误模型

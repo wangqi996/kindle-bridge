@@ -3,7 +3,7 @@ import fs from 'fs';
 import readline from 'readline';
 import { Writable } from 'stream';
 import { Command } from 'commander';
-import { saveConfig, getConfigPath } from '../../core/config';
+import { saveConfig } from '../../core/config';
 import { saveCredentials, CredentialStore } from '../../core/credentials';
 import { logger, maskEmail } from '../../core/logger';
 import { launchAmazonWizard } from '../../wizard/browser';
@@ -17,6 +17,7 @@ import { MachineOutput, ExitCodes, KindleErrorCode } from '../../types';
 export function registerConnectCommand(program: Command) {
   program
     .command('connect')
+    .alias('setup')
     .description('配置 Kindle 接收邮箱与 SMTP 发送通道（含测试投递）')
     .option('--region <region>', 'Amazon 站点 (amazon.com, amazon.cn)', 'amazon.com')
     .option('--provider <provider>', '邮箱向导，目前支持 qq')
@@ -279,7 +280,7 @@ export function registerConnectCommand(program: Command) {
           throw new Error('测试 EPUB 生成校验失败');
         }
 
-        const job = createJob(testEpubPath, testDoc.title, testDoc.author);
+        const job = createJob(testEpubPath, testDoc.title, testDoc.author, 'setup_test');
         const transport = new EmailTransport(creds);
 
         const deliveryRes = await transport.send({
@@ -320,10 +321,14 @@ export function registerConnectCommand(program: Command) {
         // Only persist credentials after the SMTP provider has accepted a real test message.
         saveConfig({
           amazonRegion: options.region || 'amazon.com',
+          setupVersion: 1,
+          provider: options.provider?.toLowerCase() === 'qq' ? 'qq' : undefined,
           kindleAddressMasked: maskEmail(kindleEmail),
           connectedAt: new Date().toISOString(),
           lastVerifiedAt: null,
-          transport: 'smtp'
+          transport: 'smtp',
+          capabilityState: 'awaiting_device_confirmation',
+          deviceVerified: false
         });
         saveCredentials(creds);
         logger.info('\n🔐 已通过 Windows 当前用户凭据保护安全保存发送配置。');
@@ -333,7 +338,7 @@ export function registerConnectCommand(program: Command) {
           jobId: job.jobId,
           status: 'provider_accepted',
           verified: false,
-          message: `连接与测试投递成功！邮件已提交给邮件服务商。\n重要提示：请在您的真实 Kindle 设备或 Kindle App 端确认测试书《${testDoc.title}》出现。`
+          message: `测试投递已被邮件服务商接收，但能力尚未部署完成。\n请在真实 Kindle 设备或 Kindle App 确认测试书《${testDoc.title}》出现，再运行 kindle confirm ${job.jobId}。`
         };
 
         outputResult(successOutput, isJson);
@@ -366,7 +371,7 @@ function outputResult(result: MachineOutput, isJson: boolean) {
       logger.info(`\n🎉 [成功] ${result.message}`);
       logger.info(`  Job ID: ${result.jobId}`);
       logger.info(`  当前状态: ${result.status}`);
-      logger.info(`  配置保存路径: ${getConfigPath()}`);
+      logger.info('  当前阶段: 等待 Kindle 设备确认；确认前不能视为能力部署完成');
     } else {
       logger.error(`\n❌ [失败] (${result.error?.code}): ${result.error?.message}`);
     }

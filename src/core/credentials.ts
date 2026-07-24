@@ -106,7 +106,7 @@ export function loadCredentials(): CredentialStore | null {
     const raw = fs.readFileSync(credentialsPath, 'utf-8');
     const payload = JSON.parse(raw) as EncryptedCredentialPayload;
     if (payload.version !== 2 || payload.provider !== 'windows-dpapi-current-user' || !payload.data) {
-      throw new Error('不支持的旧版凭据格式，请重新运行 kindle connect');
+      throw new Error('不支持的旧版凭据格式，请重新运行 kindle setup');
     }
     return JSON.parse(unprotectForCurrentWindowsUser(payload.data)) as CredentialStore;
   } catch (err) {

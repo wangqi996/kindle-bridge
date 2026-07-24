@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { JobRecord, JobStatus, KindleErrorCode } from '../types';
+import { JobKind, JobRecord, JobStatus, KindleErrorCode } from '../types';
 
 export function getJobsDir(): string {
   const localAppData = process.env.LOCALAPPDATA || (process.platform === 'darwin' ? `${process.env.HOME}/Library/Caches` : `${process.env.HOME}/.local/share`);
@@ -11,12 +11,18 @@ export function getJobsDir(): string {
   return jobsDir;
 }
 
-export function createJob(inputPath: string, title?: string, author?: string): JobRecord {
+export function createJob(
+  inputPath: string,
+  title?: string,
+  author?: string,
+  kind: JobKind = 'delivery'
+): JobRecord {
   const jobId = `job_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
   const now = new Date().toISOString();
 
   const record: JobRecord = {
     jobId,
+    kind,
     inputPath,
     title,
     author,

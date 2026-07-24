@@ -12,7 +12,7 @@ export class EmailTransport implements Transport {
 
   private getTransporter() {
     if (!this.creds || (!this.creds.smtpHost && !this.creds.smtpUser)) {
-      throw new Error('未检测到有效的 SMTP/邮箱传输凭据，请运行 kindle connect 进行绑定。');
+      throw new Error('未检测到有效的 SMTP/邮箱传输凭据，请运行 kindle setup 进行绑定。');
     }
 
     const host = this.creds.smtpHost || 'smtp.gmail.com';

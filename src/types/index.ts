@@ -9,6 +9,15 @@ export type JobStatus =
   | 'device_confirmed'
   | 'failed';
 
+export type JobKind = 'setup_test' | 'delivery' | 'dry_run';
+
+export type CapabilityState =
+  | 'needs_setup'
+  | 'awaiting_device_confirmation'
+  | 'ready'
+  | 'needs_reauth'
+  | 'needs_repair';
+
 export enum KindleErrorCode {
   INVALID_PARAMS = 'KINDLE_INVALID_PARAMS',
   CONFIG_MISSING = 'KINDLE_CONFIG_MISSING',
@@ -35,9 +44,13 @@ export const ExitCodes: Record<KindleErrorCode, number> = {
 
 export interface KindleConfig {
   version: number;
+  setupVersion: number;
   amazonRegion: string;
   kindleAddressMasked?: string;
   transport: 'user-oauth' | 'smtp' | 'relay';
+  provider?: 'qq';
+  capabilityState: CapabilityState;
+  deviceVerified: boolean;
   defaultAuthor: string;
   language: string;
   keepGeneratedEpub: boolean;
@@ -67,6 +80,7 @@ export interface ValidationResult {
 
 export interface JobRecord {
   jobId: string;
+  kind: JobKind;
   inputPath: string;
   outputPath?: string;
   title?: string;
@@ -80,6 +94,21 @@ export interface JobRecord {
     code: KindleErrorCode;
     message: string;
   };
+}
+
+export interface CapabilityStatus {
+  schemaVersion: 1;
+  installed: true;
+  state: CapabilityState;
+  ready: boolean;
+  provider?: string;
+  credentialsAvailable: boolean;
+  kindleAddressMasked?: string;
+  deviceVerified: boolean;
+  setupVersion: number;
+  connectedAt?: string;
+  lastVerifiedAt?: string | null;
+  nextAction?: string;
 }
 
 export interface MachineOutput<T = unknown> {

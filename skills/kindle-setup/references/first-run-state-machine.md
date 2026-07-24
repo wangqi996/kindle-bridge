@@ -14,10 +14,10 @@ Never start the CLI before `QQ_CODE`, `AMAZON_CHECK`, and `TEST_APPROVAL` are al
 | `AMAZON_CHECK` | Read the `@kindle.com` address and check the Approved Personal Document E-mail List. | None when already approved. | No pause |
 | `AMAZON_APPROVE` | Explain the exact sender addition and ask for confirmation before submitting. | Confirm the change or complete Amazon verification. | `允许添加可信发件人` / `可信发件人已添加` |
 | `TEST_APPROVAL` | Explain that the next terminal paste will immediately send one test EPUB from QQ to Kindle. | Approve the test in chat. | `允许发送测试书` |
-| `CLI_SECRET` | Start `connect --provider qq --agent-assisted --test-send-confirmed` in an interactive local terminal. | Paste the previously copied code into the single hidden prompt and press Enter. | `授权码已粘贴` |
+| `CLI_SECRET` | Start `kindle setup --provider qq --agent-assisted --test-send-confirmed --smtp-user "<QQ address>" --kindle-email "<Kindle address>"` in an interactive local terminal. | Paste the previously copied code into the single hidden prompt and press Enter. | `授权码已粘贴` |
 | `PROVIDER_CHECK` | Run status and doctor. Confirm `provider_accepted`. | None. | No pause |
 | `DEVICE_CHECK` | Ask the user to sync Kindle and find the test title. | Check the physical device or Kindle App. | `Kindle已收到` / `Kindle未收到` |
-| `COMPLETE` | Run `confirm`; verify `device_confirmed` and `verified: true`. | None. | No pause |
+| `COMPLETE` | Run `confirm`, then `capability`; verify `device_confirmed` and `ready: true`. | None. | No pause |
 
 ## Browser rules
 
@@ -79,8 +79,10 @@ Do not let the Agent and terminal ask the same question. In Agent-assisted mode:
 
 - Obtain test-send approval in chat before launching the terminal.
 - Pass `--test-send-confirmed`.
+- Pass the already verified QQ sender and Kindle receiving address as command options so the terminal does not ask for them again.
 - Let the terminal show exactly one authorization-code prompt.
 - Do not ask the user to type `yes` after pasting the code.
+- Do not announce setup completion until `kindle --json capability` returns `data.ready: true`.
 
 ## Handoff messages
 

@@ -10,6 +10,7 @@ import { validateEpub } from '../../converter/validator';
 import { EmailTransport } from '../../transport/email';
 import { logger } from '../../core/logger';
 import { ExitCodes, KindleErrorCode, MachineOutput } from '../../types';
+import { getCapabilityStatus } from '../../core/capability';
 
 export function registerSendCommand(program: Command) {
   program
@@ -34,7 +35,12 @@ export function registerSendCommand(program: Command) {
       logger.setDebug(!!globalOpts.debug);
 
       const absoluteInputPath = path.resolve(process.cwd(), filePath);
-      const job = createJob(absoluteInputPath, options.title, options.author);
+      const job = createJob(
+        absoluteInputPath,
+        options.title,
+        options.author,
+        options.dryRun ? 'dry_run' : 'delivery'
+      );
 
       try {
         if (!fs.existsSync(absoluteInputPath)) {
@@ -55,8 +61,9 @@ export function registerSendCommand(program: Command) {
 
         const config = loadConfig();
         const creds = loadCredentials();
+        const capability = getCapabilityStatus();
 
-        if (!options.dryRun && (!creds || !creds.kindleEmail || !creds.smtpUser)) {
+        if (!options.dryRun && !capability.ready) {
           const errOutput: MachineOutput = {
             ok: false,
             jobId: job.jobId,
@@ -64,7 +71,7 @@ export function registerSendCommand(program: Command) {
             status: 'failed',
             error: {
               code: KindleErrorCode.CONFIG_MISSING,
-              message: '未发现配置的 Send-to-Kindle 接收邮箱或发送凭据。请先运行 kindle connect 完成连接。'
+              message: `Kindle 投送能力尚未完整部署（${capability.state}）。${capability.nextAction || '请先运行 kindle setup'}`
             }
           };
           updateJobStatus(job.jobId, 'failed', errOutput.error!.message, { error: errOutput.error });

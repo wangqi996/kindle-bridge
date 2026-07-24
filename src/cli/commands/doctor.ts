@@ -7,6 +7,7 @@ import { getJobsDir, listRecentJobs } from '../../core/tracker';
 import { logger } from '../../core/logger';
 import { EmailTransport } from '../../transport/email';
 import { MachineOutput } from '../../types';
+import { getCapabilityStatus } from '../../core/capability';
 
 export interface DoctorCheckItem {
   name: string;
@@ -25,30 +26,39 @@ export function registerDoctorCommand(program: Command) {
 
       const checks: DoctorCheckItem[] = [];
 
-      // 1. Config Check
+      const capability = getCapabilityStatus();
+      checks.push({
+        name: '投送能力状态',
+        passed: capability.ready,
+        message: capability.ready
+          ? '能力已部署完成，可直接发送'
+          : `能力未就绪 (${capability.state})：${capability.nextAction}`
+      });
+
+      // 1. Internal state check
       try {
         const configPath = getConfigPath();
         if (fs.existsSync(configPath)) {
           const config = loadConfig();
           checks.push({
-            name: '配置文件校验',
+            name: '内部状态校验',
             passed: !!config.connectedAt,
             message: config.connectedAt
-              ? `配置文件有效 (${configPath})`
-              : `配置文件存在但尚未完成真实连接 (${configPath})，请运行 kindle connect`
+              ? '内部状态有效'
+              : '内部状态存在但尚未完成真实连接，请运行 kindle setup'
           });
         } else {
           checks.push({
-            name: '配置文件校验',
+            name: '内部状态校验',
             passed: false,
-            message: `配置文件未创建 (${configPath})，请运行 kindle connect`
+            message: '内部状态尚未创建，请运行 kindle setup'
           });
         }
       } catch (err) {
         checks.push({
-          name: '配置文件校验',
+          name: '内部状态校验',
           passed: false,
-          message: `配置文件格式损坏: ${(err as Error).message}`
+          message: `内部状态损坏: ${(err as Error).message}`
         });
       }
 
@@ -75,13 +85,13 @@ export function registerDoctorCommand(program: Command) {
             passed: transportAvailable,
             message: transportAvailable
               ? 'SMTP 授权与发送通道可用'
-              : 'SMTP 授权或发送通道不可用，请重新运行 kindle connect'
+              : 'SMTP 授权或发送通道不可用，请重新运行 kindle setup'
           });
         } else {
           checks.push({
             name: '系统凭据读取',
             passed: false,
-            message: '未绑定完整发送凭据，请运行 kindle connect'
+            message: '未绑定完整发送凭据，请运行 kindle setup'
           });
         }
       } catch (err) {
@@ -156,22 +166,22 @@ export function registerDoctorCommand(program: Command) {
         const execPath = chromium.executablePath();
         if (fs.existsSync(execPath)) {
           checks.push({
-            name: '浏览器引擎检查',
+            name: '可选浏览器自动化',
             passed: true,
             message: `Chromium 浏览器组件就绪 (${execPath})`
           });
         } else {
           checks.push({
-            name: '浏览器引擎检查',
-            passed: false,
-            message: 'Chromium 二进制不存在，请运行: npx playwright install chromium'
+            name: '可选浏览器自动化',
+            passed: true,
+            message: 'Chromium 未安装；不影响图示人工引导与日常发送'
           });
         }
       } catch (err) {
         checks.push({
-          name: '浏览器引擎检查',
-          passed: false,
-          message: `浏览器自动化依赖未就绪: ${(err as Error).message}`
+          name: '可选浏览器自动化',
+          passed: true,
+          message: `浏览器自动化不可用；不影响图示人工引导与日常发送 (${(err as Error).message})`
         });
       }
 

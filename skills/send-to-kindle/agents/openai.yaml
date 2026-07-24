@@ -1,0 +1,4 @@
+interface:
+  display_name: "Send to Kindle"
+  short_description: "将本地文章转换、校验并投送到已经配置完成的 Kindle 设备"
+  default_prompt: "Use $send-to-kindle to send a local document to my Kindle."

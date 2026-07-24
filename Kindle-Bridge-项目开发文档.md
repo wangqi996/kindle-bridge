@@ -3,6 +3,8 @@
 > 文档用途：将本文件完整交给开发助手，作为第一阶段的实施依据。  
 > 项目阶段：MVP / 可行性验证  
 > 首要原则：先跑通真实设备闭环，再封装 Skill（不开发 MCP）。
+>
+> **历史说明（2026-07-24）**：本文保留最初 MVP 设计。当前架构以 `docs/adr/ADR-002-capability-and-skill-layers.md` 和 README 为准，已经拆分首次配置与日常调用，并以 `kindle capability` 的 `ready: true` 作为能力部署完成判据。
 
 ## 1. 项目定义
 

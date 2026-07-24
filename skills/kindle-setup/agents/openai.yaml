@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kindle Setup"
+  short_description: "首次配置并验证可供多个 Agent 调用的 Kindle 投送能力"
+  default_prompt: "Use $kindle-setup to configure and verify Kindle delivery on this Windows account."

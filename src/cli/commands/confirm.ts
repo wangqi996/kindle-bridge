@@ -43,14 +43,24 @@ export function registerConfirmCommand(program: Command) {
         '用户已确认 Kindle 设备端收到文档',
         { verified: true }
       );
-      saveConfig({ lastVerifiedAt: confirmedAt });
+      if (target.kind === 'setup_test') {
+        saveConfig({
+          lastVerifiedAt: confirmedAt,
+          capabilityState: 'ready',
+          deviceVerified: true
+        });
+      } else {
+        saveConfig({ lastVerifiedAt: confirmedAt });
+      }
 
       const output: MachineOutput = {
         ok: true,
         jobId: confirmed.jobId,
         status: confirmed.status,
         verified: confirmed.verified,
-        message: confirmed.message
+        message: target.kind === 'setup_test'
+          ? 'Kindle 测试书已确认收到，投送能力部署完成；此后可由任意本机 Agent 直接调用 kindle send'
+          : confirmed.message
       };
       outputResult(output, isJson);
     });

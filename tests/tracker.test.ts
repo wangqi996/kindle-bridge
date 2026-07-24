@@ -19,11 +19,20 @@ describe('Job tracker output lifecycle', () => {
   });
 
   it('removes a stale output path after a temporary EPUB is cleaned up', () => {
-    const job = createJob('sample.md');
+    const job = createJob('sample.md', undefined, undefined, 'dry_run');
+    expect(job.kind).toBe('dry_run');
     updateJobStatus(job.jobId, 'validated', 'validated', { outputPath: 'temporary.epub' });
     updateJobStatus(job.jobId, 'validated', 'cleaned', { outputPath: null });
 
     expect(getJob(job.jobId)?.outputPath).toBeUndefined();
+  });
+
+  it('records setup tests separately from daily deliveries', () => {
+    const setup = createJob('test.epub', 'Setup test', undefined, 'setup_test');
+    const delivery = createJob('article.md');
+
+    expect(getJob(setup.jobId)?.kind).toBe('setup_test');
+    expect(getJob(delivery.jobId)?.kind).toBe('delivery');
   });
 
   it('clears local job history for a fresh onboarding test', () => {

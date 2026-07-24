@@ -6,6 +6,7 @@ import { ExitCodes, KindleErrorCode, MachineOutput } from '../../types';
 export function registerStatusCommand(program: Command) {
   program
     .command('status [jobId]')
+    .alias('jobs')
     .description('查看任务投递状态或历史任务列表')
     .action(async (jobId?: string) => {
       const globalOpts = program.opts();

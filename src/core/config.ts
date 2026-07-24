@@ -5,9 +5,19 @@ import { KindleConfig } from '../types';
 
 const ConfigSchema = z.object({
   version: z.number().default(1),
+  setupVersion: z.number().default(1),
   amazonRegion: z.string().default('amazon.com'),
   kindleAddressMasked: z.string().optional(),
   transport: z.enum(['user-oauth', 'smtp', 'relay']).default('user-oauth'),
+  provider: z.literal('qq').optional(),
+  capabilityState: z.enum([
+    'needs_setup',
+    'awaiting_device_confirmation',
+    'ready',
+    'needs_reauth',
+    'needs_repair'
+  ]).default('needs_setup'),
+  deviceVerified: z.boolean().default(false),
   defaultAuthor: z.string().default('Kindle Bridge User'),
   language: z.string().default('zh-CN'),
   keepGeneratedEpub: z.boolean().default(false),
@@ -33,6 +43,12 @@ export function loadConfig(): KindleConfig {
   try {
     const raw = fs.readFileSync(configPath, 'utf-8');
     const json = JSON.parse(raw);
+    if (json.capabilityState === undefined || json.deviceVerified === undefined) {
+      const previouslyVerified = !!json.lastVerifiedAt;
+      json.capabilityState = previouslyVerified ? 'ready' : 'awaiting_device_confirmation';
+      json.deviceVerified = previouslyVerified;
+      json.setupVersion = 1;
+    }
     return ConfigSchema.parse(json);
   } catch (error) {
     throw new Error(`配置文件已损坏或不符合格式: ${configPath}`);

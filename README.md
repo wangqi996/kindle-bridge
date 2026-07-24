@@ -1,139 +1,97 @@
 # Kindle Bridge
 
-> 本地优先的 Kindle 内容投递工具 (Local-first Kindle Content Delivery CLI)
+Kindle Bridge 是一个本地优先、可被多个 Agent 共用的 Kindle 投送能力。它把本地 Markdown、TXT、HTML 或 EPUB 转换并发送到用户自己的 Kindle；邮箱授权码只保存在当前 Windows 用户的 DPAPI 保护区，不经过聊天或中转服务器。
 
-Kindle Bridge 允许用户通过一条简洁的命令行指令，将本地的 Markdown、TXT、HTML 或 EPUB 文件清洗整理成符合 Amazon 规范的可重排 EPUB，并安全投递到自己的 Kindle 接收邮箱。
+## 直接交给 Agent
 
----
+把下面这句话发给 Agent：
 
-## 特性
+> 请克隆 https://github.com/wangqi996/kindle-bridge ，阅读 README，并帮我部署 Kindle 投送能力。部署完成必须以 `kindle --json capability` 返回 `ready: true` 为准。
 
-- 🔒 **本地优先**: Amazon 登录与二次验证始终由用户本人完成；SMTP 授权码仅用于本地发送，并通过 Windows 当前用户 DPAPI 保护后保存，日志中的邮箱会自动脱敏。
-- 📚 **规范 EPUB 转换**: 支持 `.md`、`.txt`、`.html`、`.epub` 格式，自动生成目录 (`nav.xhtml` / `toc.ncx`)、封面及 `<dc:language>zh-CN</dc:language>` 元数据。
-- 🌐 **可视化连接向导**: 支持 `kindle connect --browser` 启动持久化浏览器，协助定位 Amazon Kindle 个人文档与已认可发件人设置。
-- 🛠️ **完善的诊断与追溯**: 提供 `kindle doctor` 环境排查与 `kindle status` 任务状态链分析。
-- 🤖 **AI 与 Agent 友好**: 完美支持 `--json` 输出，可无缝由 AI Agent / Agent Skill 调度调用。
+Agent 应完成一次性安装，再调用 `$kindle-setup` 连续引导 QQ 邮箱、Amazon 可信发件人、测试投递和 Kindle 实机确认。
 
----
+## 两个阶段
 
-## 快速开始
+### 1. 首次部署与配置
 
-### 0. 交给 Agent 使用（推荐）
-
-项目已内置 [`skills/kindle-bridge`](skills/kindle-bridge/SKILL.md)。将整个项目交给支持 Skill 的 Agent 后，用户可以直接说：
-
-> 帮我完成 Kindle 首次连接。
-
-或：
-
-> 把这篇文章发送到我的 Kindle。
-
-Skill 会连续引导 QQ 邮箱授权、Amazon Kindle 地址与可信发件人检查、本地隐藏凭据输入、测试投递和设备端确认。用户只处理登录、安全验证、授权码隐藏粘贴和最终发送确认；授权码不会经过聊天或中转邮箱。
-
-### 1. 安装与构建
+在仓库目录运行：
 
 ```powershell
-# 克隆仓库并安装依赖
-npm install
+powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap.ps1
+```
 
-# 编译 TypeScript
+脚本会为当前 Windows 用户：
+
+- 安装全局 `kindle` 命令；
+- 安装 `kindle-setup`、`send-to-kindle` 和兼容入口 `kindle-bridge`；
+- 输出当前能力状态。
+
+如果状态不是 `ready`，让 Agent 使用 `$kindle-setup`。测试邮件被服务商接受时只表示 `provider_accepted`，还不算部署完成。用户必须在真实 Kindle 或 Kindle App 找到测试书，Agent 再执行：
+
+```powershell
+kindle --json confirm <jobId>
+kindle --json capability
+```
+
+只有第二条命令返回：
+
+```json
+{
+  "data": {
+    "state": "ready",
+    "ready": true
+  }
+}
+```
+
+才表示投送能力已经部署完成。
+
+### 2. 日常调用
+
+以后同一 Windows 用户下的其他 Agent 不必重新配置，只需调用 `$send-to-kindle`，或直接运行：
+
+```powershell
+kindle --json capability
+kindle --json send "C:\完整路径\article.md" --dry-run
+kindle --json send "C:\完整路径\article.md"
+```
+
+日常发送返回 `provider_accepted` 表示邮件服务商已接收，不能自动等同于 Kindle 设备已收到。
+
+## CLI 边界
+
+| 命令 | 作用 |
+| --- | --- |
+| `kindle capability` | 快速读取本机能力是否 `ready` |
+| `kindle setup` | 首次配置、重新授权和测试投递，兼容旧命令 `connect` |
+| `kindle send <file>` | 转换、校验并发送文档 |
+| `kindle jobs [jobId]` | 查看投递记录，兼容旧命令 `status` |
+| `kindle confirm [jobId]` | 用户在设备端确认收到 |
+| `kindle doctor` | 检查能力、凭据、发送通道和本地环境 |
+| `kindle reset` | 清除当前用户的内部状态、加密凭据和任务历史 |
+
+配置由 CLI 独占维护。用户和 Agent 不需要查找或编辑配置文件；所有 Agent 只通过上述命令读取和维护能力。
+
+## 支持格式与隐私
+
+- 输入：`.md`、`.txt`、`.html`、`.epub`
+- 输出：符合 Kindle 投送要求的可重排 EPUB
+- 凭据：Windows 当前用户 DPAPI 加密
+- Amazon 登录、OTP、验证码和 QQ 安全验证：只由用户在官方页面完成
+- 不使用项目方中转邮箱，不上传用户历史内容
+
+## 本地开发
+
+```powershell
+npm ci
 npm run build
+npm test
 ```
 
-### 2. 首次连接与绑定 (Connect)
+项目内三个 Skill 位于 [`skills`](skills)，其中：
 
-运行连接命令以配置您的 Send-to-Kindle 接收邮箱及发件邮箱 SMTP 凭据：
+- [`kindle-setup`](skills/kindle-setup/SKILL.md)：只负责首次配置与修复；
+- [`send-to-kindle`](skills/send-to-kindle/SKILL.md)：只负责日常发送；
+- [`kindle-bridge`](skills/kindle-bridge/SKILL.md)：旧提示词兼容路由。
 
-```powershell
-# 推荐：QQ 邮箱小白向导（使用系统默认浏览器进行一次性人工设置）
-npx ts-node src/cli/index.ts connect --provider qq
-
-# Agent 已完成 QQ/Amazon 浏览器导航与核对后续接
-node dist/cli/index.js connect --provider qq --agent-assisted --test-send-confirmed --smtp-user "user@qq.com" --kindle-email "your_name@kindle.com"
-
-# 方式 A：命令行交互向导
-npx ts-node src/cli/index.ts connect
-
-# 方式 B：启动浏览器协助查看 Amazon 设置
-npx ts-node src/cli/index.ts connect --browser
-
-# 方式 C：预填非敏感参数，授权码仍在隐藏输入框中填写
-npx ts-node src/cli/index.ts connect --kindle-email "your_name@kindle.com" --smtp-user "user@qq.com"
-```
-
-*系统会自动发送一本公版测试 EPUB 并返回 `provider_accepted` 状态。请在您的 Kindle 设备或 Kindle App 端确认试读。*
-
-### 3. 发送文档 (Send)
-
-```powershell
-# 发送本地 Markdown 文章
-npx ts-node src/cli/index.ts send .\article.md
-
-# 指定标题与作者
-npx ts-node src/cli/index.ts send .\book.md --title "示例标题" --author "王祺"
-
-# 仅预检与转换（不实际发信）
-npx ts-node src/cli/index.ts send .\draft.md --dry-run
-
-# 机器可读 JSON 输出
-npx ts-node src/cli/index.ts send .\notes.md --json
-```
-
-### 4. 查询任务状态 (Status)
-
-```powershell
-# 查看最近任务历史
-npx ts-node src/cli/index.ts status
-
-# 查看特定任务详情
-npx ts-node src/cli/index.ts status job_1784712605219_pzajbl --json
-```
-
-### 5. 环境诊断 (Doctor)
-
-```powershell
-npx ts-node src/cli/index.ts doctor
-```
-
-### 6. 确认 Kindle 已收到 (Confirm)
-
-只有用户在 Kindle 设备或 Kindle App 上确认收到后，才将任务标记为完整成功：
-
-```powershell
-node dist/cli/index.js --json confirm
-
-# 或指定任务
-node dist/cli/index.js --json confirm "job_xxx"
-```
-
-最终成功状态为 `device_confirmed`，并且 `verified` 必须为 `true`。
-
-### 7. 清空本机状态并重新测试 (Reset)
-
-清除本机连接配置、Windows 保护的凭据和任务历史，不删除项目源码，也不会撤销 QQ 邮箱服务器上的授权码：
-
-```powershell
-node dist/cli/index.js reset
-
-# 用户已在 Agent 对话中明确同意清除时
-node dist/cli/index.js --json reset --yes
-```
-
----
-
-## 排错指南 (Troubleshooting)
-
-| 错误代码 | 说明 | 解决方案 |
-| :--- | :--- | :--- |
-| `KINDLE_CONFIG_MISSING` | 配置或凭据缺失 | 运行 `kindle connect` 重新绑定 |
-| `KINDLE_DELIVERY_FAILED` | 邮件投递失败 | 检查 SMTP 授权码是否正确，并确认发件邮箱已加入 Amazon “已认可的发件人列表” |
-| `KINDLE_EPUB_INVALID` | EPUB 结构不合规 | 检视 Markdown/HTML 中是否包含损坏或无法解析的非标准标签 |
-
----
-
-## 卸载与清除数据
-
-如需完全清除本地配置与凭据：
-
-- 配置文件目录: `%APPDATA%\kindle-bridge\`
-- 任务与浏览器 Profile: `%LOCALAPPDATA%\kindle-bridge\`
+许可证：MIT。
