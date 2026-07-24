@@ -10,7 +10,7 @@ Never start the CLI before `QQ_CODE`, `AMAZON_CHECK`, and `TEST_APPROVAL` are al
 | `QQ_SETTINGS` | From QQ Mail, locate `设置` in the upper-right corner. Then locate `账号与安全` near the lower-left of the settings sidebar. | Click the named target when browser control is unavailable. | `已进入账号与安全` |
 | `QQ_SECURITY` | On the separate 账号与安全 page, select `安全设置`. Then locate `POP3/IMAP/SMTP/Exchange/CardDAV 服务`. | Complete identity verification if prompted. | `QQ安全验证已完成` |
 | `QQ_CODE` | Stop at 生成授权码. Do not read the code or clipboard. | Generate the code and click copy. Keep it in the clipboard; do not paste yet. | `授权码已复制` |
-| `AMAZON_OPEN` | Open Manage Your Content and Devices → Preferences → Personal Document Settings. | Sign in if required. | `Amazon已登录` |
+| `AMAZON_OPEN` | Open the exact stable URL `https://www.amazon.com/hz/mycd/myx`, then go to Preferences → Personal Document Settings. Never substitute an `amazon.cn` URL or an old deep link. | Sign in to Amazon.com if required. | `Amazon已登录` |
 | `AMAZON_CHECK` | Read the `@kindle.com` address and check the Approved Personal Document E-mail List. | None when already approved. | No pause |
 | `AMAZON_APPROVE` | Explain the exact sender addition and ask for confirmation before submitting. | Confirm the change or complete Amazon verification. | `允许添加可信发件人` / `可信发件人已添加` |
 | `TEST_APPROVAL` | Explain that the next terminal paste will immediately send one test EPUB from QQ to Kindle. | Approve the test in chat. | `允许发送测试书` |
@@ -55,6 +55,12 @@ The authorization code is 16 alphanumeric characters and has no fixed prefix or 
 ```
 
 ## Amazon details
+
+Always start from:
+
+`https://www.amazon.com/hz/mycd/myx`
+
+This project currently supports Amazon.com Kindle accounts only. Do not infer the Amazon site from the user's language or physical location. Do not use `amazon.cn/mn/dcw/myx.html`, `/mycd` shortcuts, or old `#/home/settings/payment` deep links.
 
 Use:
 

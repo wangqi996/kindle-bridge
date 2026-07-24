@@ -13,13 +13,18 @@ import { createJob, updateJobStatus } from '../../core/tracker';
 import { buildEpub } from '../../converter/epub-builder';
 import { validateEpub } from '../../converter/validator';
 import { MachineOutput, ExitCodes, KindleErrorCode } from '../../types';
+import {
+  AMAZON_REGION,
+  getAmazonSettingsUrl,
+  UnsupportedAmazonRegionError
+} from '../../core/amazon';
 
 export function registerConnectCommand(program: Command) {
   program
     .command('connect')
     .alias('setup')
     .description('配置 Kindle 接收邮箱与 SMTP 发送通道（含测试投递）')
-    .option('--region <region>', 'Amazon 站点 (amazon.com, amazon.cn)', 'amazon.com')
+    .option('--region <region>', 'Amazon Kindle 账户站点（当前仅支持 amazon.com）', AMAZON_REGION)
     .option('--provider <provider>', '邮箱向导，目前支持 qq')
     .option('--smtp-host <host>', 'SMTP 服务器地址 (如 smtp.qq.com, smtp.gmail.com)')
     .option('--smtp-port <port>', 'SMTP 端口 (如 465, 587)', '587')
@@ -86,6 +91,9 @@ export function registerConnectCommand(program: Command) {
       let testEpubPath: string | undefined;
 
       try {
+        const amazonRegion = (options.region || AMAZON_REGION).toLowerCase();
+        const amazonSettingsUrl = getAmazonSettingsUrl(amazonRegion);
+
         if (options.testSendConfirmed && !options.agentAssisted) {
           throw new Error('--test-send-confirmed 只能与 --agent-assisted 一起使用');
         }
@@ -149,9 +157,6 @@ export function registerConnectCommand(program: Command) {
           }
 
           if (!options.agentAssisted) {
-            const amazonSettingsUrl = options.region === 'amazon.cn'
-              ? 'https://www.amazon.cn/mycd'
-              : 'https://www.amazon.com/mycd';
             logger.info('\n4. 正在用系统默认浏览器打开 Amazon“管理我的内容和设备”。');
             logger.info(`   如果浏览器没有自动打开，请访问: ${amazonSettingsUrl}`);
             logger.info('   进入“偏好设置/Preferences”→“个人文档设置/Personal Document Settings”。');
@@ -320,7 +325,7 @@ export function registerConnectCommand(program: Command) {
 
         // Only persist credentials after the SMTP provider has accepted a real test message.
         saveConfig({
-          amazonRegion: options.region || 'amazon.com',
+          amazonRegion,
           setupVersion: 1,
           provider: options.provider?.toLowerCase() === 'qq' ? 'qq' : undefined,
           kindleAddressMasked: maskEmail(kindleEmail),
@@ -345,16 +350,19 @@ export function registerConnectCommand(program: Command) {
 
       } catch (error) {
         const message = (error as Error).message;
+        const code = error instanceof UnsupportedAmazonRegionError
+          ? KindleErrorCode.INVALID_PARAMS
+          : KindleErrorCode.UNKNOWN;
         const errOutput: MachineOutput = {
           ok: false,
           status: 'failed',
           error: {
-            code: KindleErrorCode.UNKNOWN,
+            code,
             message
           }
         };
         outputResult(errOutput, isJson);
-        process.exitCode = ExitCodes[KindleErrorCode.UNKNOWN];
+        process.exitCode = ExitCodes[code];
       } finally {
         if (testEpubPath && fs.existsSync(testEpubPath)) {
           fs.unlinkSync(testEpubPath);

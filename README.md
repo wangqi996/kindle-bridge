@@ -10,6 +10,8 @@ Kindle Bridge 是一个本地优先、可被多个 Agent 共用的 Kindle 投送
 
 Agent 应完成一次性安装，再调用 `$kindle-setup` 连续引导 QQ 邮箱、Amazon 可信发件人、测试投递和 Kindle 实机确认。
 
+Amazon 设置必须从 `https://www.amazon.com/hz/mycd/myx` 进入。当前版本仅支持 Amazon.com Kindle 账户，不使用已失效的 Amazon.cn Kindle 管理地址。
+
 ## 两个阶段
 
 ### 1. 首次部署与配置

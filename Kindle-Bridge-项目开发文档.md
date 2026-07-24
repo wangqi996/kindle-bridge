@@ -473,7 +473,7 @@ Skill 的核心目标是**封装底层能力与工具标准**，绝不干涉或�
 
 #### 3. 可选辅助指引知识库 (Optional Knowledge Base for Agent)
 宿主 Agent 可根据用户需求自主选用以下参考知识：
-- **浏览器协助**：调用 `kindle connect --browser` 可打开浏览器导航至 Amazon 个人文档设置页 (`https://www.amazon.com/hz/mycd/myftys`)。
+- **浏览器协助**：调用 `kindle setup --browser` 可打开 Amazon.com“管理我的内容和设备”稳定入口 (`https://www.amazon.com/hz/mycd/myx`)，再进入偏好设置与个人文档设置。
 - **授权码位置**：
   - QQ 邮箱：`mail.qq.com` -> 设置 -> 账户 -> POP3/SMTP 服务。
   - 163 邮箱：`mail.163.com` -> 设置 -> POP3/SMTP/IMAP -> 新增授权密码。

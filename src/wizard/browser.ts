@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { chromium, BrowserContext } from 'playwright';
 import { logger } from '../core/logger';
+import { getAmazonSettingsUrl } from '../core/amazon';
 
 export function getBrowserProfileDir(): string {
   const localAppData = process.env.LOCALAPPDATA || (process.platform === 'darwin' ? `${process.env.HOME}/Library/Caches` : `${process.env.HOME}/.local/share`);
@@ -18,9 +19,7 @@ export async function launchAmazonWizard(region: string = 'amazon.com'): Promise
   close: () => Promise<void>;
 }> {
   const userDataDir = getBrowserProfileDir();
-  const amazonUrl = region === 'amazon.cn'
-    ? 'https://www.amazon.cn/hz/mycd/myx#/home/settings/payment'
-    : 'https://www.amazon.com/hz/mycd/myx#/home/settings/payment';
+  const amazonUrl = getAmazonSettingsUrl(region);
 
   logger.info(`🌐 启动 Kindle Connect 浏览器向导...`);
   logger.info(`  配置目录: ${userDataDir}`);
