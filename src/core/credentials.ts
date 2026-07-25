@@ -26,6 +26,7 @@ export function getCredentialsPath(): string {
 
 const MACOS_KEYCHAIN_SERVICE = 'com.kindle-for-agents.smtp-credentials';
 const MACOS_KEYCHAIN_ACCOUNT = 'current-user';
+const MACOS_KEYCHAIN_PAYLOAD_PREFIX = 'kindle-for-agents:v1:';
 
 export function getCredentialStorageDescription(): string {
   if (process.platform === 'win32') {
@@ -81,6 +82,18 @@ function runSecurity(args: string[], allowMissing = false): string {
   return result.stdout.trim();
 }
 
+function runSecurityInteractive(command: string): void {
+  const result = spawnSync('security', ['-i'], {
+    input: `${command}\n`,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024
+  });
+
+  if (result.status !== 0) {
+    throw new Error('macOS 钥匙串凭据操作失败');
+  }
+}
+
 function protectForCurrentWindowsUser(plainText: string): string {
   if (process.platform !== 'win32') {
     throw new Error('当前 MVP 的安全凭据存储仅支持 Windows');
@@ -119,13 +132,19 @@ function unprotectForCurrentWindowsUser(cipherText: string): string {
 }
 
 function saveToMacOSKeychain(creds: CredentialStore): void {
-  runSecurity([
+  // `security add-generic-password -w <password>` exposes the password through
+  // the child process argv. Interactive mode accepts the command over stdin,
+  // keeping the credential payload out of process listings. Base64 also makes
+  // the value safe for the interactive command parser.
+  const encodedPayload = MACOS_KEYCHAIN_PAYLOAD_PREFIX
+    + Buffer.from(JSON.stringify(creds), 'utf8').toString('base64');
+  runSecurityInteractive([
     'add-generic-password',
     '-a', MACOS_KEYCHAIN_ACCOUNT,
     '-s', MACOS_KEYCHAIN_SERVICE,
-    '-w', JSON.stringify(creds),
+    '-w', encodedPayload,
     '-U'
-  ]);
+  ].join(' '));
 }
 
 function loadFromMacOSKeychain(): CredentialStore {
@@ -135,7 +154,13 @@ function loadFromMacOSKeychain(): CredentialStore {
     '-s', MACOS_KEYCHAIN_SERVICE,
     '-w'
   ]);
-  return JSON.parse(plainText) as CredentialStore;
+  const serialized = plainText.startsWith(MACOS_KEYCHAIN_PAYLOAD_PREFIX)
+    ? Buffer.from(
+      plainText.slice(MACOS_KEYCHAIN_PAYLOAD_PREFIX.length),
+      'base64'
+    ).toString('utf8')
+    : plainText;
+  return JSON.parse(serialized) as CredentialStore;
 }
 
 function clearMacOSKeychain(): void {
