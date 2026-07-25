@@ -17,12 +17,12 @@ describe('Converter & EPUB Pipeline', () => {
 
   it('should parse markdown file into structured document and chapters', async () => {
     const doc = await parseInputFile(sampleMdPath, {
-      title: 'Kindle Bridge 测试样本',
+      title: 'Kindle for Agents 测试样本',
       author: '测试作者',
       language: 'zh-CN'
     });
 
-    expect(doc.title).toBe('Kindle Bridge 测试样本');
+    expect(doc.title).toBe('Kindle for Agents 测试样本');
     expect(doc.author).toBe('测试作者');
     expect(doc.language).toBe('zh-CN');
     expect(doc.chapters.length).toBeGreaterThan(0);
@@ -30,7 +30,7 @@ describe('Converter & EPUB Pipeline', () => {
 
   it('should build a valid EPUB file and pass structure validation', async () => {
     const doc = await parseInputFile(sampleMdPath, {
-      title: 'Kindle Bridge 测试样本',
+      title: 'Kindle for Agents 测试样本',
       author: '测试作者',
       language: 'zh-CN'
     });

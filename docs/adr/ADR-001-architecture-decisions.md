@@ -1,4 +1,4 @@
-# ADR-001: Kindle Bridge 架构决策与选型规范
+# ADR-001: Kindle for Agents 架构决策与选型规范
 
 ## 状态
 已通过 (Approved)
@@ -7,7 +7,7 @@
 2026-07-22
 
 ## 背景与目标
-Kindle Bridge 是一个本地优先的 Kindle 内容投递 CLI 工具。为保证核心逻辑高可靠、安全脱敏且可在未来扩展至 MCP/Skill 架构，需在此对基础设施、凭据存储、EPUB 转换选型及传输层抽象进行标准化决策。
+Kindle for Agents 是一个面向 AI Agent 的本地优先 Kindle 内容投递 CLI 工具。为保证核心逻辑高可靠、安全脱敏且可在未来扩展至 MCP/Skill 架构，需在此对基础设施、凭据存储、EPUB 转换选型及传输层抽象进行标准化决策。
 
 ---
 
@@ -27,7 +27,7 @@ Kindle Bridge 是一个本地优先的 Kindle 内容投递 CLI 工具。为保�
 ### 3. 本地存储与凭据安全 (Security & Sensitive Data Masking)
 - **规范**:
   - **CLI 内部状态**: 由 CLI 独占维护于当前用户应用数据目录；用户与 Agent 不直接查找、读取或编辑底层文件。
-  - **任务历史**: 持久化于 `%LOCALAPPDATA%\kindle-bridge\jobs\job_<id>.json`。
+  - **任务历史**: 持久化于 `%LOCALAPPDATA%\kindle-bridge\jobs\job_<id>.json`。`kindle-bridge` 是为兼容既有安装而保留的历史存储键。
   - **系统凭据库**: 邮箱 OAuth/SMTP 凭据使用 Windows 当前用户 DPAPI 加密存储，绝不以明文写入文件。
   - **日志脱敏**: Logger 统一实现敏感数据脱敏过滤器，将邮箱地址格式化为 `w***@kindle.com`，且在调试日志中同样禁止输出 Cookie、密码或全文正文。
 

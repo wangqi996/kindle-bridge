@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kindle for Agents"
+  short_description: "让 Agent 配置并使用本机 Kindle 投送能力"
+  default_prompt: "使用 $kindle-for-agents 检查本机能力，并把这篇文章发送到 Kindle。"

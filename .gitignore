@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .kindle-bridge-temp/
+.kindle-for-agents-temp/
 *.tgz
 coverage/
 .env

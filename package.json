@@ -1,7 +1,7 @@
 {
-  "name": "kindle-bridge",
+  "name": "kindle-for-agents",
   "version": "0.2.1",
-  "description": "Local-first Kindle content delivery CLI tool",
+  "description": "Local-first Kindle content delivery capability for AI agents",
   "main": "dist/cli/index.js",
   "bin": {
     "kindle": "dist/cli/index.js"
@@ -23,8 +23,21 @@
     "kindle",
     "epub",
     "cli",
-    "send-to-kindle"
+    "send-to-kindle",
+    "ai-agent",
+    "agent-skill"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wangqi996/kindle-for-agents.git"
+  },
+  "homepage": "https://github.com/wangqi996/kindle-for-agents#readme",
+  "bugs": {
+    "url": "https://github.com/wangqi996/kindle-for-agents/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -33,7 +46,7 @@
     "jszip": "^3.10.1",
     "marked": "^15.0.7",
     "mime-types": "^2.1.35",
-    "nodemailer": "^6.10.0",
+    "nodemailer": "^9.0.3",
     "playwright": "^1.50.1",
     "sanitize-html": "^2.14.0",
     "zod": "^3.24.2"

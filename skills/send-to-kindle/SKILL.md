@@ -1,6 +1,6 @@
 ---
 name: send-to-kindle
-description: Convert and send a local Markdown, HTML, text, or EPUB document through an already configured Kindle Bridge capability. Use when the user asks an Agent to send, push, deliver, or test a local article or book on Kindle after setup.
+description: Convert and send a local Markdown, HTML, text, or EPUB document through an already configured Kindle for Agents capability. Use when the user asks an Agent to send, push, deliver, or test a local article or book on Kindle after setup.
 ---
 
 # Send to Kindle

@@ -1,4 +1,4 @@
 interface:
-  display_name: "Kindle Bridge"
-  short_description: "用自然语言连续引导配置邮箱并将文章安全发送到 Kindle"
-  default_prompt: "使用 $kindle-bridge 帮我完成首次连接，并把这篇文章发送到 Kindle。"
+  display_name: "Kindle Bridge（旧名称兼容）"
+  short_description: "将旧 Kindle Bridge 请求转交给 Kindle for Agents"
+  default_prompt: "使用 $kindle-bridge 兼容入口处理这项旧请求。"

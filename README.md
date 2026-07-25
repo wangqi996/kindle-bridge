@@ -1,12 +1,14 @@
-# Kindle Bridge
+# Kindle for Agents
 
-Kindle Bridge 是一个本地优先、可被多个 Agent 共用的 Kindle 投送能力。它把本地 Markdown、TXT、HTML 或 EPUB 转换并发送到用户自己的 Kindle；邮箱授权码只保存在当前 Windows 用户的 DPAPI 保护区，不经过聊天或中转服务器。
+Kindle for Agents 是一个本地优先、可被多个 AI Agent 共用的 Kindle 投送能力。它让 Agent 能够把本地 Markdown、TXT、HTML 或 EPUB 转换并发送到用户自己的 Kindle；邮箱授权码只保存在当前 Windows 用户的 DPAPI 保护区，不经过聊天或中转服务器。
+
+> Kindle for Agents 是非官方开源项目，与 Amazon 无隶属、赞助或背书关系。Kindle 是 Amazon.com, Inc. 或其关联公司的商标。
 
 ## 直接交给 Agent
 
 把下面这句话发给 Agent：
 
-> 请克隆 https://github.com/wangqi996/kindle-bridge ，阅读 README，并帮我部署 Kindle 投送能力。部署完成必须以 `kindle --json capability` 返回 `ready: true` 为准。
+> 请克隆 https://github.com/wangqi996/kindle-for-agents ，阅读 README，并帮我部署 Kindle 投送能力。部署完成必须以 `kindle --json capability` 返回 `ready: true` 为准。
 
 Agent 应完成一次性安装，再调用 `$kindle-setup` 连续引导 QQ 邮箱、Amazon 可信发件人、测试投递和 Kindle 实机确认。
 
@@ -25,7 +27,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap.ps1
 脚本会为当前 Windows 用户：
 
 - 安装全局 `kindle` 命令；
-- 安装 `kindle-setup`、`send-to-kindle` 和兼容入口 `kindle-bridge`；
+- 安装主入口 `kindle-for-agents`、专用入口 `kindle-setup`、`send-to-kindle`，以及旧名称兼容入口 `kindle-bridge`；
 - 输出当前能力状态。
 
 如果状态不是 `ready`，让 Agent 使用 `$kindle-setup`。测试邮件被服务商接受时只表示 `provider_accepted`，还不算部署完成。用户必须在真实 Kindle 或 Kindle App 找到测试书，Agent 再执行：
@@ -90,10 +92,13 @@ npm run build
 npm test
 ```
 
-项目内三个 Skill 位于 [`skills`](skills)，其中：
+项目内四个 Skill 位于 [`skills`](skills)，其中：
 
+- [`kindle-for-agents`](skills/kindle-for-agents/SKILL.md)：根据本机能力状态分流首次配置与日常发送；
 - [`kindle-setup`](skills/kindle-setup/SKILL.md)：只负责首次配置与修复；
 - [`send-to-kindle`](skills/send-to-kindle/SKILL.md)：只负责日常发送；
 - [`kindle-bridge`](skills/kindle-bridge/SKILL.md)：旧提示词兼容路由。
+
+为兼容已有安装，本机内部状态仍使用历史存储键 `kindle-bridge`。品牌改名不会清除配置、加密凭据、浏览器会话或任务历史。
 
 许可证：MIT。

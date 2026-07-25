@@ -9,7 +9,7 @@ import { ExitCodes, KindleErrorCode, MachineOutput } from '../../types';
 export function registerResetCommand(program: Command) {
   program
     .command('reset')
-    .description('清除本机 Kindle Bridge 连接配置、凭据和任务历史')
+    .description('清除本机 Kindle for Agents 连接配置、凭据和任务历史')
     .option('--yes', '确认执行清除，适用于用户已在 Agent 对话中明确同意', false)
     .action(async (options: { yes?: boolean }) => {
       const globalOpts = program.opts();
@@ -45,7 +45,7 @@ export function registerResetCommand(program: Command) {
 
       outputResult({
         ok: true,
-        message: `本机 Kindle Bridge 状态已清除；删除了 ${clearedJobs} 条任务记录`
+        message: `本机 Kindle for Agents 状态已清除；删除了 ${clearedJobs} 条任务记录`
       }, isJson);
     });
 }

@@ -262,18 +262,18 @@ export function registerConnectCommand(program: Command) {
 
         // Test Delivery Process with Sample Test EPUB
         logger.info('\n🧪 正在生成并发送无版权风险测试 EPUB 进行连通性校验...');
-        const tempDir = path.join(process.cwd(), '.kindle-bridge-temp');
+        const tempDir = path.join(process.cwd(), '.kindle-for-agents-temp');
         testEpubPath = path.join(tempDir, `test_connection_${Date.now()}.epub`);
 
         const testDoc = {
-          title: 'Kindle Bridge 首次连接测试书',
-          author: 'Kindle Bridge Team',
+          title: 'Kindle for Agents 首次连接测试书',
+          author: 'Kindle for Agents Team',
           language: 'zh-CN',
           chapters: [
             {
               id: 'test_chap_1',
               title: '连接成功测试页',
-              htmlContent: '<p>恭喜！Kindle Bridge 本地连接与邮件投递管道已成功跑通。</p>'
+              htmlContent: '<p>恭喜！Kindle for Agents 本地连接与邮件投递管道已成功跑通。</p>'
             }
           ]
         };
@@ -291,7 +291,7 @@ export function registerConnectCommand(program: Command) {
         const deliveryRes = await transport.send({
           to: kindleEmail,
           subject: testDoc.title,
-          text: 'Kindle Bridge connection test document.',
+          text: 'Kindle for Agents connection test document.',
           attachments: [
             {
               filename: `${testDoc.title}.epub`,

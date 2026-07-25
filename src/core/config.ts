@@ -18,7 +18,7 @@ const ConfigSchema = z.object({
     'needs_repair'
   ]).default('needs_setup'),
   deviceVerified: z.boolean().default(false),
-  defaultAuthor: z.string().default('Kindle Bridge User'),
+  defaultAuthor: z.string().default('Kindle for Agents User'),
   language: z.string().default('zh-CN'),
   keepGeneratedEpub: z.boolean().default(false),
   connectedAt: z.string().optional(),
@@ -27,6 +27,8 @@ const ConfigSchema = z.object({
 
 export function getConfigDir(): string {
   const appData = process.env.APPDATA || (process.platform === 'darwin' ? `${process.env.HOME}/Library/Preferences` : `${process.env.HOME}/.config`);
+  // Keep the historical storage key so existing configuration and DPAPI
+  // credentials remain available after the product rename.
   return path.join(appData, 'kindle-bridge');
 }
 

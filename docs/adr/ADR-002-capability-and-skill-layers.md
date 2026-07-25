@@ -44,9 +44,10 @@ kindle --json capability
 
 ### 3. Skill 按上下文拆分
 
+- `kindle-for-agents`：当前主入口，只根据 capability 选择下面一个专用 Skill。
 - `kindle-setup`：首次配置、重新授权和修复；包含浏览器与人工图示引导。
 - `send-to-kindle`：日常转换与发送；首先读取 capability，不重复加载配置流程。
-- `kindle-bridge`：旧提示词兼容路由，只根据 capability 选择上面一个 Skill。
+- `kindle-bridge`：旧品牌提示词兼容路由，继续根据 capability 选择上面一个专用 Skill。
 
 ### 4. 部署边界
 
@@ -54,7 +55,7 @@ kindle --json capability
 
 1. 安装依赖并构建 CLI；
 2. 将 `kindle` 注册为当前用户可调用命令；
-3. 将三个 Skill 安装到当前用户的共享 Agent Skills 目录；
+3. 将四个 Skill 安装到当前用户的共享 Agent Skills 目录；
 4. 输出 capability 状态。
 
 脚本完成不等于投送能力完成。只有首次配置、测试投递和设备确认全部闭环后，才能称为“能力部署完成”。
@@ -65,3 +66,4 @@ kindle --json capability
 - 日常上下文不再包含 QQ/Amazon 首次配置细节。
 - 用户更新授权码或 Kindle 地址时仍通过 `kindle setup` 维护，不直接操作配置文件。
 - 未来可以在不改变 Skill 入口的情况下，把 CLI 底层替换为其他传输实现。
+- 品牌更名为 Kindle for Agents 后继续读取 `kindle-bridge` 历史存储键，避免已有配置、凭据、任务记录和浏览器会话失效。
