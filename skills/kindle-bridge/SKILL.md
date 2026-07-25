@@ -1,9 +1,12 @@
 ---
 name: kindle-bridge
-description: Compatibility router for Kindle Bridge requests. Use when an existing prompt names kindle-bridge; route first-time configuration to kindle-setup and routine document delivery to send-to-kindle without loading both workflows.
+description: Legacy compatibility router for Kindle Bridge requests. Use only when an existing prompt names kindle-bridge; route first-time configuration to kindle-setup and routine document delivery to send-to-kindle without loading both workflows.
 ---
 
-# Kindle Bridge Router
+# Kindle Bridge Legacy Router
+
+The current product name and primary entry point are Kindle for Agents and
+`$kindle-for-agents`. Keep this router only for existing prompts.
 
 Run `kindle --json capability`.
 

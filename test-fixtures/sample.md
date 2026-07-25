@@ -1,10 +1,10 @@
-# Kindle Bridge 测试样本文档
+# Kindle for Agents 测试样本文档
 
 > 本文档用于验证 Markdown 转换 EPUB 功能及 Kindle 结构合规性。
 
 ## 第一章：项目简介
 
-Kindle Bridge 是一个本地优先的 Kindle 内容投递工具。
+Kindle for Agents 是一个面向 AI Agent 的本地优先 Kindle 内容投递能力。
 
 - 支持 Markdown、TXT、HTML、EPUB。
 - 自动生成符合 Amazon Send-to-Kindle 规范的 EPUB 书籍。

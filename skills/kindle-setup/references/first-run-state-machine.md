@@ -144,6 +144,6 @@ Device confirmation:
 
 ```text
 邮件服务器已经接受测试 EPUB，但还不能代表 Kindle 已收到。
-现在只做一步：打开 Kindle 或 Kindle App，点击同步并查找《Kindle Bridge 首次连接测试书》。
+现在只做一步：打开 Kindle 或 Kindle App，点击同步并查找《Kindle for Agents 首次连接测试书》。
 完成后回来回复：Kindle已收到；没有收到则回复：Kindle未收到
 ```

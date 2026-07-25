@@ -93,7 +93,7 @@ export function registerSendCommand(program: Command) {
         // 2. Generating EPUB
         let targetEpubPath = absoluteInputPath;
         if (!doc.isEpubPassthrough) {
-          const tempDir = path.join(process.cwd(), '.kindle-bridge-temp');
+          const tempDir = path.join(process.cwd(), '.kindle-for-agents-temp');
           const ext = path.extname(absoluteInputPath);
           const baseName = path.basename(absoluteInputPath, ext);
           targetEpubPath = path.join(tempDir, `${baseName}_${job.jobId}.epub`);
@@ -155,7 +155,7 @@ export function registerSendCommand(program: Command) {
         const deliveryRes = await transport.send({
           to: creds!.kindleEmail!,
           subject: doc.title,
-          text: `Delivered via Kindle Bridge (${doc.title})`,
+          text: `Delivered via Kindle for Agents (${doc.title})`,
           attachments: [
             {
               filename: `${doc.title}.epub`,

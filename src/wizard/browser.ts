@@ -6,6 +6,7 @@ import { getAmazonSettingsUrl } from '../core/amazon';
 
 export function getBrowserProfileDir(): string {
   const localAppData = process.env.LOCALAPPDATA || (process.platform === 'darwin' ? `${process.env.HOME}/Library/Caches` : `${process.env.HOME}/.local/share`);
+  // Keep the historical storage key so the dedicated browser profile survives.
   const profileDir = path.join(localAppData, 'kindle-bridge', 'browser-profile');
   if (!fs.existsSync(profileDir)) {
     fs.mkdirSync(profileDir, { recursive: true });

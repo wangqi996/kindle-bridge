@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $userProfilePath = [System.IO.Path]::GetFullPath([Environment]::GetFolderPath('UserProfile'))
 $skillRoot = [System.IO.Path]::GetFullPath((Join-Path $userProfilePath '.agents\skills'))
-$backupRoot = [System.IO.Path]::GetFullPath((Join-Path $userProfilePath '.agents\skill-backups\kindle-bridge'))
+$backupRoot = [System.IO.Path]::GetFullPath((Join-Path $userProfilePath '.agents\skill-backups\kindle-for-agents'))
 
 if (-not $skillRoot.StartsWith($userProfilePath, [System.StringComparison]::OrdinalIgnoreCase)) {
   throw 'The skill destination is outside the current user profile.'
@@ -21,8 +21,35 @@ foreach ($commandName in @('node', 'npm')) {
 Push-Location $repoRoot
 try {
   npm ci
+  if ($LASTEXITCODE -ne 0) {
+    throw 'npm ci failed.'
+  }
+
   npm run build
+  if ($LASTEXITCODE -ne 0) {
+    throw 'npm run build failed.'
+  }
+
+  $globalNpmRoot = (& npm root --global).Trim()
+  if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($globalNpmRoot)) {
+    throw 'Unable to resolve the global npm package directory.'
+  }
+
+  $legacyGlobalPackage = [System.IO.Path]::GetFullPath(
+    (Join-Path $globalNpmRoot 'kindle-bridge')
+  )
+  if (Test-Path -LiteralPath $legacyGlobalPackage) {
+    Write-Host 'Migrating the legacy global package link: kindle-bridge'
+    npm uninstall --global kindle-bridge
+    if ($LASTEXITCODE -ne 0) {
+      throw 'Unable to remove the legacy kindle-bridge global package link.'
+    }
+  }
+
   npm link
+  if ($LASTEXITCODE -ne 0) {
+    throw 'npm link failed.'
+  }
 } finally {
   Pop-Location
 }
@@ -31,7 +58,7 @@ New-Item -ItemType Directory -Path $skillRoot -Force | Out-Null
 New-Item -ItemType Directory -Path $backupRoot -Force | Out-Null
 
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-foreach ($skillName in @('kindle-setup', 'send-to-kindle', 'kindle-bridge')) {
+foreach ($skillName in @('kindle-for-agents', 'kindle-setup', 'send-to-kindle', 'kindle-bridge')) {
   $source = [System.IO.Path]::GetFullPath((Join-Path $repoRoot "skills\$skillName"))
   $destination = [System.IO.Path]::GetFullPath((Join-Path $skillRoot $skillName))
 
@@ -53,7 +80,7 @@ foreach ($skillName in @('kindle-setup', 'send-to-kindle', 'kindle-bridge')) {
 }
 
 Write-Host ''
-Write-Host 'Kindle Bridge is installed for the current Windows user.'
+Write-Host 'Kindle for Agents is installed for the current Windows user.'
 Write-Host 'Capability status:'
 kindle --json capability
 Write-Host ''

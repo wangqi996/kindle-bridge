@@ -18,7 +18,7 @@ export interface DoctorCheckItem {
 export function registerDoctorCommand(program: Command) {
   program
     .command('doctor')
-    .description('诊断 Kindle Bridge 环境与配置状态')
+    .description('诊断 Kindle for Agents 环境与配置状态')
     .action(async () => {
       const globalOpts = program.opts();
       const isJson = !!globalOpts.json;
@@ -123,7 +123,7 @@ export function registerDoctorCommand(program: Command) {
 
       // 4. EPUB Builder Temp Directory Check
       try {
-        const tempDir = path.join(process.cwd(), '.kindle-bridge-temp');
+        const tempDir = path.join(process.cwd(), '.kindle-for-agents-temp');
         if (!fs.existsSync(tempDir)) {
           fs.mkdirSync(tempDir, { recursive: true });
         }
@@ -196,7 +196,7 @@ export function registerDoctorCommand(program: Command) {
       if (isJson) {
         console.log(JSON.stringify(output, null, 2));
       } else {
-        logger.info('🏥 Kindle Bridge 环境诊断:');
+        logger.info('🏥 Kindle for Agents 环境诊断:');
         checks.forEach(c => {
           const symbol = c.passed ? '✅' : '❌';
           logger.info(`  ${symbol} [${c.name}] ${c.message}`);

@@ -4,6 +4,7 @@ import { JobKind, JobRecord, JobStatus, KindleErrorCode } from '../types';
 
 export function getJobsDir(): string {
   const localAppData = process.env.LOCALAPPDATA || (process.platform === 'darwin' ? `${process.env.HOME}/Library/Caches` : `${process.env.HOME}/.local/share`);
+  // Keep the historical storage key so existing job history survives the rename.
   const jobsDir = path.join(localAppData, 'kindle-bridge', 'jobs');
   if (!fs.existsSync(jobsDir)) {
     fs.mkdirSync(jobsDir, { recursive: true });

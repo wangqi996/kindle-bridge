@@ -1,14 +1,16 @@
-# Kindle Bridge 项目开发文档
+# Kindle for Agents 项目开发文档
 
 > 文档用途：将本文件完整交给开发助手，作为第一阶段的实施依据。  
 > 项目阶段：MVP / 可行性验证  
 > 首要原则：先跑通真实设备闭环，再封装 Skill（不开发 MCP）。
 >
 > **历史说明（2026-07-24）**：本文保留最初 MVP 设计。当前架构以 `docs/adr/ADR-002-capability-and-skill-layers.md` 和 README 为准，已经拆分首次配置与日常调用，并以 `kindle capability` 的 `ready: true` 作为能力部署完成判据。
+>
+> **品牌说明（2026-07-25）**：项目由 Kindle Bridge 更名为 Kindle for Agents。CLI 命令继续使用 `kindle`；`kindle-bridge` 仅作为旧 Skill 名称和历史本机存储键保留。
 
 ## 1. 项目定义
 
-Kindle Bridge 是一个本地优先的 Kindle 内容投递工具。用户完成一次 Amazon/Kindle 绑定后，可以通过一条命令把本地内容整理成适合 Kindle 阅读的文件并发送到自己的 Kindle。
+Kindle for Agents 是一个面向 AI Agent 的本地优先 Kindle 内容投递工具。用户完成一次 Amazon/Kindle 绑定后，Agent 可以通过一条命令把本地内容整理成适合 Kindle 阅读的文件并发送到用户自己的 Kindle。
 
 第一阶段交付物是 **CLI**，后续增加 **Agent Skill**，不开发 MCP Server。
 
@@ -112,7 +114,7 @@ CLI
 
 ## 5. CLI 设计
 
-项目临时命令名使用 `kindle`，包名可使用 `kindle-bridge`。
+项目命令名使用 `kindle`，包名使用 `kindle-for-agents`。
 
 ### 5.1 首次连接
 
@@ -519,6 +521,6 @@ CLI 已完美支持 `--json` 输出与统一错误码，满足 Agent 直接消�
 
 ## 19. 项目的一句话判断
 
-Kindle Bridge 不是“让 AI 每次操控 Send to Kindle 网页”，而是：
+Kindle for Agents 不是“让 AI 每次操控 Send to Kindle 网页”，而是：
 
 > 通过一次性连接向导建立稳定投递通道，让人和 AI 以后都能用同一个 CLI 将内容可靠地发送到 Kindle。

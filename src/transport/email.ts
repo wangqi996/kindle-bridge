@@ -47,7 +47,7 @@ export class EmailTransport implements Transport {
   async send(options: SendEmailOptions): Promise<DeliveryResult> {
     try {
       const transporter = this.getTransporter();
-      const fromAddr = this.creds?.smtpUser || 'kindle-bridge@local';
+      const fromAddr = this.creds?.smtpUser || 'kindle-for-agents@local';
 
       logger.info(`📧 正在发送投递邮件...`);
       logger.info(`  发件人: ${maskEmail(fromAddr)}`);
@@ -59,7 +59,7 @@ export class EmailTransport implements Transport {
         from: fromAddr,
         to: options.to,
         subject: options.subject,
-        text: options.text || `Sent via Kindle Bridge at ${new Date().toISOString()}`,
+        text: options.text || `Sent via Kindle for Agents at ${new Date().toISOString()}`,
         html: options.html,
         attachments: options.attachments.map(a => ({
           filename: a.filename,
