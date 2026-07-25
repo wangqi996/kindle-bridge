@@ -35,6 +35,8 @@ Finish only when the second command returns `data.state: "ready"`.
 
 - Never ask for the QQ password, authorization code, OTP, CAPTCHA, or QR content in chat.
 - Ask the user to paste the authorization code only into the one hidden terminal prompt.
+- On macOS, create that prompt with the CLI `--open-terminal` option. Confirm that Terminal.app became visible before asking the user to paste anything.
+- If the visible terminal does not open, stop the workflow and report the failure. Never fall back to asking the user to send, dictate, display, or paste the authorization code in chat.
 - Ask for permission immediately before any test delivery or Amazon approved-sender change.
 - When browser control is unavailable, show [the QQ settings path diagram](assets/qq-manual-guide.svg) and guide one click at a time.
 - Keep the QQ authorization-code page open after the code is copied. Open Amazon in a new browser tab or window so the QQ page is not replaced.

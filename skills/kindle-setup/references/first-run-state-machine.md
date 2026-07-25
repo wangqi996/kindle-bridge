@@ -9,13 +9,13 @@ Never start the CLI before `QQ_CODE`, `AMAZON_CHECK`, and `TEST_APPROVAL` are al
 | `QQ_OPEN` | Actively open `https://mail.qq.com/` in the browser with the user's existing session before the first pause. Do not ask the user to open the URL before attempting it yourself. | Sign in if required. | `QQ已登录` |
 | `QQ_SETTINGS` | From QQ Mail, locate `设置` in the upper-right corner. Then locate `账号与安全` near the lower-left of the settings sidebar. | Click the named target when browser control is unavailable. | `已进入账号与安全` |
 | `QQ_SECURITY` | On the separate 账号与安全 page, select `安全设置`. Then locate `POP3/IMAP/SMTP/Exchange/CardDAV 服务`. | Complete identity verification if prompted. | `QQ安全验证已完成` |
-| `QQ_CODE` | Stop at 生成授权码. Do not read the code or clipboard. After it is copied, explicitly tell the user not to close the QQ page. | Generate the code and click copy. Keep it in the clipboard; do not paste yet, and keep the QQ page open. | `授权码已复制` |
+| `QQ_CODE` | Stop at 生成授权码. Do not read the code or clipboard. In the same instruction that asks the user to copy it, explicitly say not to close the QQ page after copying. | Generate the code and click copy. Keep it in the clipboard; do not paste yet, and keep the QQ page open. | `授权码已复制` |
 | `AMAZON_OPEN` | Preserve the QQ page and open the exact stable URL `https://www.amazon.com/hz/mycd/myx` in a new browser tab or window. Never substitute an `amazon.cn` URL or an old deep link. | Sign in to Amazon.com if required. | `Amazon已登录` |
 | `AMAZON_PREFERENCES` | On `Manage Your Content and Devices`, click the visible English `Preferences` tab on the right, then expand `Personal Document Settings`. Never substitute translated click labels. | Click the named targets only when browser control is unavailable. | `已展开Personal Document Settings` |
 | `AMAZON_CHECK` | Read the `@kindle.com` address and check the Approved Personal Document E-mail List. | None when already approved. | No pause |
 | `AMAZON_APPROVE` | Explain the exact sender addition and ask for confirmation before submitting. | Confirm the change or complete Amazon verification. | `允许添加可信发件人` / `可信发件人已添加` |
 | `TEST_APPROVAL` | Explain that the next terminal paste will immediately send one test EPUB from QQ to Kindle. | Approve the test in chat. | `允许发送测试书` |
-| `CLI_SECRET` | Start `kindle setup --provider qq --agent-assisted --test-send-confirmed --smtp-user "<QQ address>" --kindle-email "<Kindle address>"` in an interactive local terminal. | Paste the previously copied code into the single hidden prompt and press Enter. | `授权码已粘贴` |
+| `CLI_SECRET` | On macOS, run `kindle setup --open-terminal --provider qq --agent-assisted --test-send-confirmed --smtp-user "<QQ address>" --kindle-email "<Kindle address>"`; verify that Terminal.app becomes visible. On Windows, run the same command without `--open-terminal` in an interactive local terminal. | Paste the previously copied code into the single hidden prompt and press Enter. If no visible terminal appears, do not expose the code; reply `终端未打开`. | `授权码已粘贴` / `终端未打开` |
 | `PROVIDER_CHECK` | Run status and doctor. Confirm `provider_accepted`. | None. | No pause |
 | `DEVICE_CHECK` | Ask the user to sync Kindle and find the test title. | Check the physical device or Kindle App. | `Kindle已收到` / `Kindle未收到` |
 | `COMPLETE` | Run `confirm`, then `capability`; verify `device_confirmed` and `ready: true`. | None. | No pause |
@@ -39,6 +39,8 @@ Authentication boundaries:
 - Ask the user to sign in; do not request credentials in chat.
 - Let the user handle OTP, CAPTCHA, QR scan, and security verification.
 - After login, require the exact resume phrase and continue navigation automatically.
+- The QQ authorization code must never be sent through Agent chat, even when terminal automation fails.
+- A missing terminal is a hard stop, not permission to request the code through another channel.
 
 ## QQ Mail details
 
@@ -125,7 +127,7 @@ Authorization code:
 
 ```text
 当前已经停在“生成授权码”，授权码不能经过聊天。
-现在只做一步：完成安全验证，生成授权码并点击复制；复制后先不要粘贴。
+现在只做一步：完成安全验证，生成授权码并点击复制；复制后先不要粘贴，也不要关闭当前 QQ 页面。
 完成后回来回复：授权码已复制
 ```
 
@@ -155,9 +157,10 @@ QQ 和 Amazon 设置已经全部核对。下一步粘贴授权码后，程序会
 Hidden paste:
 
 ```text
-本地安全输入窗口已经打开，这是整个流程唯一一次粘贴授权码。
+macOS Terminal 安全输入窗口已经打开，这是整个流程唯一一次粘贴授权码。
 现在只做一步：在授权码提示后按 Ctrl+V，再按 Enter；输入内容不会显示。
-完成后回来回复：授权码已粘贴
+如果没有看到 Terminal 窗口，不要把授权码发到聊天，回复：终端未打开
+成功粘贴后回来回复：授权码已粘贴
 ```
 
 Device confirmation:

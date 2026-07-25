@@ -13,6 +13,7 @@ import {
 import { logger, maskEmail } from '../../core/logger';
 import { launchAmazonWizard } from '../../wizard/browser';
 import { openInSystemBrowser } from '../../wizard/external-browser';
+import { launchMacSetupTerminal } from '../../wizard/terminal';
 import { EmailTransport } from '../../transport/email';
 import { createJob, updateJobStatus } from '../../core/tracker';
 import { buildEpub } from '../../converter/epub-builder';
@@ -38,6 +39,7 @@ export function registerConnectCommand(program: Command) {
     .option('--browser', '启动浏览器协助定位 Amazon Send-to-Kindle 设置', false)
     .option('--agent-assisted', 'Agent 已完成浏览器导航与设置核对', false)
     .option('--test-send-confirmed', '用户已在 Agent 对话中明确同意发送测试书', false)
+    .option('--open-terminal', 'macOS：在可见 Terminal 窗口中打开授权码安全输入', false)
     .action(async (options: {
       region?: string;
       provider?: string;
@@ -48,6 +50,7 @@ export function registerConnectCommand(program: Command) {
       agentAssisted?: boolean;
       testSendConfirmed?: boolean;
       browser?: boolean;
+      openTerminal?: boolean;
     }) => {
       const globalOpts = program.opts();
       const isJson = !!globalOpts.json;
@@ -96,12 +99,41 @@ export function registerConnectCommand(program: Command) {
       let testEpubPath: string | undefined;
 
       try {
+        if (options.openTerminal) {
+          if (
+            !options.agentAssisted
+            || !options.testSendConfirmed
+            || options.provider?.toLowerCase() !== 'qq'
+            || !options.smtpUser
+            || !options.kindleEmail
+          ) {
+            throw new Error(
+              '--open-terminal 必须与 --provider qq、--agent-assisted、--test-send-confirmed、--smtp-user 和 --kindle-email 一起使用'
+            );
+          }
+          launchMacSetupTerminal({
+            smtpUser: options.smtpUser,
+            kindleEmail: options.kindleEmail,
+            region: options.region
+          });
+          outputResult({
+            ok: true,
+            message: '已打开 macOS Terminal 安全输入窗口。授权码只能粘贴到该窗口，绝不能发送到聊天。'
+          }, isJson);
+          return;
+        }
+
         ensureCredentialStorageSupported();
         const amazonRegion = (options.region || AMAZON_REGION).toLowerCase();
         const amazonSettingsUrl = getAmazonSettingsUrl(amazonRegion);
 
         if (options.testSendConfirmed && !options.agentAssisted) {
           throw new Error('--test-send-confirmed 只能与 --agent-assisted 一起使用');
+        }
+        if (process.platform === 'darwin' && options.agentAssisted && !process.stdin.isTTY) {
+          throw new Error(
+            'macOS Agent 辅助配置需要可见安全终端。请使用 --open-terminal 重新启动；绝不能在聊天中索要或发送授权码'
+          );
         }
 
         let discoveredKindleEmail: string | undefined = undefined;
@@ -384,9 +416,11 @@ function outputResult(result: MachineOutput, isJson: boolean) {
   } else {
     if (result.ok) {
       logger.info(`\n🎉 [成功] ${result.message}`);
-      logger.info(`  Job ID: ${result.jobId}`);
-      logger.info(`  当前状态: ${result.status}`);
-      logger.info('  当前阶段: 等待 Kindle 设备确认；确认前不能视为能力部署完成');
+      if (result.jobId) logger.info(`  Job ID: ${result.jobId}`);
+      if (result.status) logger.info(`  当前状态: ${result.status}`);
+      if (result.status === 'provider_accepted') {
+        logger.info('  当前阶段: 等待 Kindle 设备确认；确认前不能视为能力部署完成');
+      }
     } else {
       logger.error(`\n❌ [失败] (${result.error?.code}): ${result.error?.message}`);
     }

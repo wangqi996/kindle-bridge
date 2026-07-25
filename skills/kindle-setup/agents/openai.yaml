@@ -1,4 +1,4 @@
 interface:
   display_name: "Kindle Setup"
   short_description: "首次配置并验证可供多个 Agent 调用的 Kindle 投送能力"
-  default_prompt: "Use $kindle-setup to configure and verify Kindle delivery for the current operating-system user. Actively open each required browser page before pausing; never delegate the initial QQ Mail open to the user."
+  default_prompt: "Use $kindle-setup to configure and verify Kindle delivery for the current operating-system user. Actively open each required browser page before pausing. Never delegate the initial QQ Mail open, and never ask the user to send an authorization code in chat; on macOS use --open-terminal."
