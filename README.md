@@ -1,6 +1,6 @@
 # Kindle for Agents
 
-Kindle for Agents 是一个本地优先、可被多个 AI Agent 共用的 Kindle 投送能力。它让 Agent 能够把本地 Markdown、TXT、HTML 或 EPUB 转换并发送到用户自己的 Kindle；邮箱授权码只保存在当前 Windows 用户的 DPAPI 保护区，不经过聊天或中转服务器。
+Kindle for Agents 是一个本地优先、可被多个 AI Agent 共用的 Kindle 投送能力。它让 Agent 能够把本地 Markdown、TXT、HTML 或 EPUB 转换并发送到用户自己的 Kindle；邮箱授权码只保存在 Windows 当前用户的 DPAPI 保护区或 macOS 登录钥匙串中，不经过聊天或中转服务器。
 
 > Kindle for Agents 是非官方开源项目，与 Amazon 无隶属、赞助或背书关系。Kindle 是 Amazon.com, Inc. 或其关联公司的商标。
 
@@ -12,19 +12,29 @@ Kindle for Agents 是一个本地优先、可被多个 AI Agent 共用的 Kindle
 
 Agent 应完成一次性安装，再调用 `$kindle-setup` 连续引导 QQ 邮箱、Amazon 可信发件人、测试投递和 Kindle 实机确认。
 
+安装前，Agent 必须先识别当前操作系统，再选择对应脚本：Windows 使用 `scripts/bootstrap.ps1`，macOS 使用 `scripts/bootstrap.sh`。不要在一个系统上尝试运行另一个系统的安装脚本。
+
 Amazon 设置必须从 `https://www.amazon.com/hz/mycd/myx` 进入。当前版本仅支持 Amazon.com Kindle 账户，不使用已失效的 Amazon.cn Kindle 管理地址。
 
 ## 两个阶段
 
 ### 1. 首次部署与配置
 
-在仓库目录运行：
+在仓库目录运行对应系统的安装脚本。
+
+Windows：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap.ps1
 ```
 
-脚本会为当前 Windows 用户：
+macOS：
+
+```bash
+bash ./scripts/bootstrap.sh
+```
+
+脚本会为当前系统用户：
 
 - 安装全局 `kindle` 命令；
 - 安装主入口 `kindle-for-agents`、专用入口 `kindle-setup`、`send-to-kindle`，以及旧名称兼容入口 `kindle-bridge`；
@@ -32,7 +42,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap.ps1
 
 如果状态不是 `ready`，让 Agent 使用 `$kindle-setup`。测试邮件被服务商接受时只表示 `provider_accepted`，还不算部署完成。用户必须在真实 Kindle 或 Kindle App 找到测试书，Agent 再执行：
 
-```powershell
+```console
 kindle --json confirm <jobId>
 kindle --json capability
 ```
@@ -52,12 +62,12 @@ kindle --json capability
 
 ### 2. 日常调用
 
-以后同一 Windows 用户下的其他 Agent 不必重新配置，只需调用 `$send-to-kindle`，或直接运行：
+以后同一系统用户下的其他 Agent 不必重新配置，只需调用 `$send-to-kindle`，或直接运行：
 
-```powershell
+```console
 kindle --json capability
-kindle --json send "C:\完整路径\article.md" --dry-run
-kindle --json send "C:\完整路径\article.md"
+kindle --json send "<文档绝对路径>" --dry-run
+kindle --json send "<文档绝对路径>"
 ```
 
 日常发送返回 `provider_accepted` 表示邮件服务商已接收，不能自动等同于 Kindle 设备已收到。
@@ -80,17 +90,21 @@ kindle --json send "C:\完整路径\article.md"
 
 - 输入：`.md`、`.txt`、`.html`、`.epub`
 - 输出：符合 Kindle 投送要求的可重排 EPUB
-- 凭据：Windows 当前用户 DPAPI 加密
+- 凭据：Windows 当前用户 DPAPI 保护；macOS 登录钥匙串
+- 配置：Windows `%APPDATA%\kindle-bridge`；macOS `~/Library/Application Support/kindle-bridge`
+- 任务与浏览器缓存：Windows `%LOCALAPPDATA%\kindle-bridge`；macOS `~/Library/Caches/kindle-bridge`
 - Amazon 登录、OTP、验证码和 QQ 安全验证：只由用户在官方页面完成
 - 不使用项目方中转邮箱，不上传用户历史内容
 
 ## 本地开发
 
-```powershell
+```console
 npm ci
 npm run build
 npm test
 ```
+
+支持 Node.js LTS，目标平台为 Windows 10/11 与 macOS。macOS 首次读取或写入凭据时，系统可能显示钥匙串访问提示。
 
 项目内四个 Skill 位于 [`skills`](skills)，其中：
 

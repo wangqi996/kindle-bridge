@@ -9,6 +9,10 @@ describe('Kindle skills architecture', () => {
   const routerRoot = path.join(skillsRoot, 'kindle-for-agents');
   const legacyRouterRoot = path.join(skillsRoot, 'kindle-bridge');
   const setupText = fs.readFileSync(path.join(setupRoot, 'SKILL.md'), 'utf-8');
+  const setupAgentConfig = fs.readFileSync(
+    path.join(setupRoot, 'agents', 'openai.yaml'),
+    'utf-8'
+  );
   const sendText = fs.readFileSync(path.join(sendRoot, 'SKILL.md'), 'utf-8');
   const routerText = fs.readFileSync(path.join(routerRoot, 'SKILL.md'), 'utf-8');
   const legacyRouterText = fs.readFileSync(
@@ -17,6 +21,10 @@ describe('Kindle skills architecture', () => {
   );
   const stateMachine = fs.readFileSync(
     path.join(setupRoot, 'references', 'first-run-state-machine.md'),
+    'utf-8'
+  );
+  const connectCommand = fs.readFileSync(
+    path.join(process.cwd(), 'src', 'cli', 'commands', 'connect.ts'),
     'utf-8'
   );
 
@@ -30,6 +38,20 @@ describe('Kindle skills architecture', () => {
     expect(stateMachine).toContain('--test-send-confirmed');
     expect(stateMachine).toContain('Kindle已收到');
     expect(stateMachine).toContain('QQ 邮箱首页右上角“设置” → 设置页左下“账号与安全” → 新页面“安全设置”');
+    expect(setupText).toContain('Before the first user pause, actively open');
+    expect(setupAgentConfig).toContain('Never delegate the initial QQ Mail open');
+    expect(stateMachine).toContain('Do not ask the user to open the URL before attempting it yourself');
+    expect(stateMachine).toContain('不要关闭当前 QQ 页面');
+    expect(stateMachine).toContain('复制后先不要粘贴，也不要关闭当前 QQ 页面');
+    expect(stateMachine).toContain('open Amazon in a new tab or window');
+    expect(stateMachine).toContain('kindle setup --open-terminal');
+    expect(stateMachine).toContain('A missing terminal is a hard stop');
+    expect(stateMachine).toContain('终端未打开');
+    expect(setupText).toContain('Never fall back to asking the user to send');
+    expect(setupAgentConfig).toContain('on macOS use --open-terminal');
+    expect(stateMachine).toContain('右侧 Preferences → 展开 Personal Document Settings');
+    expect(connectCommand).toContain('页面点击右侧英文标签 “Preferences”');
+    expect(connectCommand).toContain('“Approved Personal Document E-mail List”');
     expect(
       fs.existsSync(path.join(setupRoot, 'assets', 'qq-manual-guide.svg'))
     ).toBe(true);
@@ -47,9 +69,13 @@ describe('Kindle skills architecture', () => {
     expect(legacyRouterText).toContain('../send-to-kindle/SKILL.md');
   });
 
-  it('ships a one-time current-user bootstrap script', () => {
+  it('ships one-time current-user bootstrap scripts for Windows and macOS', () => {
     const bootstrap = fs.readFileSync(
       path.join(process.cwd(), 'scripts', 'bootstrap.ps1'),
+      'utf-8'
+    );
+    const macBootstrap = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'bootstrap.sh'),
       'utf-8'
     );
     expect(bootstrap).toContain('npm link');
@@ -59,5 +85,9 @@ describe('Kindle skills architecture', () => {
     expect(bootstrap).toContain("'kindle-for-agents'");
     expect(bootstrap).toContain("'kindle-bridge'");
     expect(bootstrap).toContain('kindle --json capability');
+    expect(macBootstrap).toContain('npm link');
+    expect(macBootstrap).toContain('npm uninstall --global kindle-bridge');
+    expect(macBootstrap).toContain('.agents/skills');
+    expect(macBootstrap).toContain('kindle --json capability');
   });
 });

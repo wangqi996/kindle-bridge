@@ -1,7 +1,11 @@
 import readline from 'readline';
 import { Command } from 'commander';
 import { clearConfig, getConfigPath } from '../../core/config';
-import { clearCredentials, getCredentialsPath } from '../../core/credentials';
+import {
+  clearCredentials,
+  getCredentialsPath,
+  getCredentialStorageDescription
+} from '../../core/credentials';
 import { clearJobs, getJobsDir } from '../../core/tracker';
 import { logger } from '../../core/logger';
 import { ExitCodes, KindleErrorCode, MachineOutput } from '../../types';
@@ -20,7 +24,8 @@ export function registerResetCommand(program: Command) {
       if (!confirmed && !isJson) {
         logger.info('将清除以下本机数据：');
         logger.info(`  配置: ${getConfigPath()}`);
-        logger.info(`  加密凭据: ${getCredentialsPath()}`);
+        logger.info(`  凭据索引: ${getCredentialsPath()}`);
+        logger.info(`  系统凭据: ${getCredentialStorageDescription()}`);
         logger.info(`  任务历史: ${getJobsDir()}`);
         logger.info('不会删除项目源码，也不会撤销 QQ 邮箱服务器上的授权码。');
         confirmed = (await askQuestion('请输入 RESET 确认清除，其他内容取消: ')) === 'RESET';

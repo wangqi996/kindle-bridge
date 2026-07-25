@@ -53,7 +53,7 @@ MVP 必须完成以下真实链路：
 
 ### 3.1 必须实现
 
-- Windows 优先运行。
+- 支持 Windows 10/11 与 macOS。
 - 提供 `connect`、`send`、`status`、`doctor` 四个命令。
 - 首次连接时不收集、不保存 Amazon 密码。
 - 用户亲自处理登录、二次验证和验证码。
@@ -83,7 +83,7 @@ MVP 必须完成以下真实链路：
 - CLI 框架：选择维护活跃、支持子命令和自动帮助的库。
 - 浏览器连接向导：Playwright，使用独立、持久化的浏览器配置目录。
 - 配置校验：使用 Schema 校验库。
-- 凭据保存：Windows Credential Manager；不得把令牌明文写入 JSON。
+- 凭据保存：Windows 当前用户 DPAPI 或 macOS 登录钥匙串；不得把令牌明文写入 JSON。
 - EPUB：优先选择可离线运行、能控制目录与元数据的生成方案。
 - 邮件：抽象为 Transport 接口，首版至少实现一种真实可用的邮件传输方式。
 
@@ -268,10 +268,17 @@ AI 处理必须：
 推荐位置：
 
 ```text
-%APPDATA%\kindle-bridge\config.json
-%LOCALAPPDATA%\kindle-bridge\jobs\
-%LOCALAPPDATA%\kindle-bridge\browser-profile\
-Windows Credential Manager：邮箱 OAuth/SMTP 凭据
+Windows:
+  %APPDATA%\kindle-bridge\config.json
+  %LOCALAPPDATA%\kindle-bridge\jobs\
+  %LOCALAPPDATA%\kindle-bridge\browser-profile\
+  当前用户 DPAPI：邮箱 OAuth/SMTP 凭据
+
+macOS:
+  ~/Library/Application Support/kindle-bridge/config.json
+  ~/Library/Caches/kindle-bridge/jobs/
+  ~/Library/Caches/kindle-bridge/browser-profile/
+  登录钥匙串：邮箱 OAuth/SMTP 凭据
 ```
 
 安全要求：
@@ -400,7 +407,7 @@ Windows Credential Manager：邮箱 OAuth/SMTP 凭据
 
 以下条件必须全部满足：
 
-- `kindle connect` 能在一台实际 Windows 电脑上完成配置。
+- `kindle connect` 能在实际 Windows 与 macOS 电脑上完成配置。
 - 配置过程不保存 Amazon 密码。
 - `kindle send sample.md` 能生成合法 EPUB。
 - 文件由真实发送通道提交给用户的 Kindle 邮箱。
@@ -437,7 +444,7 @@ Windows Credential Manager：邮箱 OAuth/SMTP 凭据
 
 - 状态记录、回执解析、幂等、重试和 `doctor`。
 - 授权修复流程。
-- 打包 Windows 安装方式。
+- 打包 Windows 与 macOS 安装方式。
 
 ### Phase 4：AI Skill 接入
 
@@ -496,7 +503,7 @@ CLI 已完美支持 `--json` 输出与统一错误码，满足 Agent 直接消�
 
 - 可运行的源代码。
 - 锁定版本的依赖文件。
-- Windows 安装或本地运行脚本。
+- Windows 与 macOS 安装或本地运行脚本。
 - README。
 - 架构决策记录 ADR。
 - 自动化测试。

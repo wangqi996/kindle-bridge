@@ -3,11 +3,11 @@ import fs from 'fs';
 import { chromium, BrowserContext } from 'playwright';
 import { logger } from '../core/logger';
 import { getAmazonSettingsUrl } from '../core/amazon';
+import { getProductStateDir } from '../core/paths';
 
 export function getBrowserProfileDir(): string {
-  const localAppData = process.env.LOCALAPPDATA || (process.platform === 'darwin' ? `${process.env.HOME}/Library/Caches` : `${process.env.HOME}/.local/share`);
   // Keep the historical storage key so the dedicated browser profile survives.
-  const profileDir = path.join(localAppData, 'kindle-bridge', 'browser-profile');
+  const profileDir = path.join(getProductStateDir(), 'browser-profile');
   if (!fs.existsSync(profileDir)) {
     fs.mkdirSync(profileDir, { recursive: true });
   }

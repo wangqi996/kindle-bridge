@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
 import { KindleConfig } from '../types';
+import { getProductConfigDir } from './paths';
 
 const ConfigSchema = z.object({
   version: z.number().default(1),
@@ -26,10 +27,9 @@ const ConfigSchema = z.object({
 });
 
 export function getConfigDir(): string {
-  const appData = process.env.APPDATA || (process.platform === 'darwin' ? `${process.env.HOME}/Library/Preferences` : `${process.env.HOME}/.config`);
-  // Keep the historical storage key so existing configuration and DPAPI
-  // credentials remain available after the product rename.
-  return path.join(appData, 'kindle-bridge');
+  // Keep the historical storage key so existing Windows installations survive
+  // the product rename. macOS uses the conventional Application Support root.
+  return getProductConfigDir();
 }
 
 export function getConfigPath(): string {

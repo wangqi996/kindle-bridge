@@ -4,10 +4,16 @@ import readline from 'readline';
 import { Writable } from 'stream';
 import { Command } from 'commander';
 import { saveConfig } from '../../core/config';
-import { saveCredentials, CredentialStore } from '../../core/credentials';
+import {
+  saveCredentials,
+  CredentialStore,
+  getCredentialStorageDescription,
+  ensureCredentialStorageSupported
+} from '../../core/credentials';
 import { logger, maskEmail } from '../../core/logger';
 import { launchAmazonWizard } from '../../wizard/browser';
 import { openInSystemBrowser } from '../../wizard/external-browser';
+import { launchMacSetupTerminal } from '../../wizard/terminal';
 import { EmailTransport } from '../../transport/email';
 import { createJob, updateJobStatus } from '../../core/tracker';
 import { buildEpub } from '../../converter/epub-builder';
@@ -33,6 +39,7 @@ export function registerConnectCommand(program: Command) {
     .option('--browser', '启动浏览器协助定位 Amazon Send-to-Kindle 设置', false)
     .option('--agent-assisted', 'Agent 已完成浏览器导航与设置核对', false)
     .option('--test-send-confirmed', '用户已在 Agent 对话中明确同意发送测试书', false)
+    .option('--open-terminal', 'macOS：在可见 Terminal 窗口中打开授权码安全输入', false)
     .action(async (options: {
       region?: string;
       provider?: string;
@@ -43,6 +50,7 @@ export function registerConnectCommand(program: Command) {
       agentAssisted?: boolean;
       testSendConfirmed?: boolean;
       browser?: boolean;
+      openTerminal?: boolean;
     }) => {
       const globalOpts = program.opts();
       const isJson = !!globalOpts.json;
@@ -91,11 +99,41 @@ export function registerConnectCommand(program: Command) {
       let testEpubPath: string | undefined;
 
       try {
+        if (options.openTerminal) {
+          if (
+            !options.agentAssisted
+            || !options.testSendConfirmed
+            || options.provider?.toLowerCase() !== 'qq'
+            || !options.smtpUser
+            || !options.kindleEmail
+          ) {
+            throw new Error(
+              '--open-terminal 必须与 --provider qq、--agent-assisted、--test-send-confirmed、--smtp-user 和 --kindle-email 一起使用'
+            );
+          }
+          launchMacSetupTerminal({
+            smtpUser: options.smtpUser,
+            kindleEmail: options.kindleEmail,
+            region: options.region
+          });
+          outputResult({
+            ok: true,
+            message: '已打开 macOS Terminal 安全输入窗口。授权码只能粘贴到该窗口，绝不能发送到聊天。'
+          }, isJson);
+          return;
+        }
+
+        ensureCredentialStorageSupported();
         const amazonRegion = (options.region || AMAZON_REGION).toLowerCase();
         const amazonSettingsUrl = getAmazonSettingsUrl(amazonRegion);
 
         if (options.testSendConfirmed && !options.agentAssisted) {
           throw new Error('--test-send-confirmed 只能与 --agent-assisted 一起使用');
+        }
+        if (process.platform === 'darwin' && options.agentAssisted && !process.stdin.isTTY) {
+          throw new Error(
+            'macOS Agent 辅助配置需要可见安全终端。请使用 --open-terminal 重新启动；绝不能在聊天中索要或发送授权码'
+          );
         }
 
         let discoveredKindleEmail: string | undefined = undefined;
@@ -125,7 +163,7 @@ export function registerConnectCommand(program: Command) {
 
         if (!isJson && options.provider?.toLowerCase() === 'qq') {
           logger.info('\n📮 QQ 邮箱连接向导');
-          logger.info('授权码只会保存在这台电脑的 Windows 当前用户凭据保护区中。');
+          logger.info(`授权码只会保存在这台电脑的${getCredentialStorageDescription()}中。`);
 
           if (!smtpUser) {
             smtpUser = await askQuestion('1. 请输入你的 QQ 邮箱地址（例如 123456@qq.com）: ');
@@ -159,9 +197,10 @@ export function registerConnectCommand(program: Command) {
           if (!options.agentAssisted) {
             logger.info('\n4. 正在用系统默认浏览器打开 Amazon“管理我的内容和设备”。');
             logger.info(`   如果浏览器没有自动打开，请访问: ${amazonSettingsUrl}`);
-            logger.info('   进入“偏好设置/Preferences”→“个人文档设置/Personal Document Settings”。');
-            logger.info('   在“Send-to-Kindle 电子邮箱设置”中找到你的 Kindle 接收地址。');
-            logger.info(`   在“认可的个人文档电子邮箱列表”中添加 ${maskEmail(smtpUser)}。`);
+            logger.info('   在 “Manage Your Content and Devices” 页面点击右侧英文标签 “Preferences”。');
+            logger.info('   展开 “Personal Document Settings”。');
+            logger.info('   在 “Send-to-Kindle E-Mail Settings” 中找到你的 Kindle 接收地址。');
+            logger.info(`   在 “Approved Personal Document E-mail List” 中添加 ${maskEmail(smtpUser)}。`);
             openInSystemBrowser(amazonSettingsUrl);
           }
 
@@ -336,7 +375,7 @@ export function registerConnectCommand(program: Command) {
           deviceVerified: false
         });
         saveCredentials(creds);
-        logger.info('\n🔐 已通过 Windows 当前用户凭据保护安全保存发送配置。');
+        logger.info(`\n🔐 已通过${getCredentialStorageDescription()}安全保存发送配置。`);
 
         const successOutput: MachineOutput = {
           ok: true,
@@ -377,9 +416,11 @@ function outputResult(result: MachineOutput, isJson: boolean) {
   } else {
     if (result.ok) {
       logger.info(`\n🎉 [成功] ${result.message}`);
-      logger.info(`  Job ID: ${result.jobId}`);
-      logger.info(`  当前状态: ${result.status}`);
-      logger.info('  当前阶段: 等待 Kindle 设备确认；确认前不能视为能力部署完成');
+      if (result.jobId) logger.info(`  Job ID: ${result.jobId}`);
+      if (result.status) logger.info(`  当前状态: ${result.status}`);
+      if (result.status === 'provider_accepted') {
+        logger.info('  当前阶段: 等待 Kindle 设备确认；确认前不能视为能力部署完成');
+      }
     } else {
       logger.error(`\n❌ [失败] (${result.error?.code}): ${result.error?.message}`);
     }
