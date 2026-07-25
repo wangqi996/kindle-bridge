@@ -4,7 +4,12 @@ import readline from 'readline';
 import { Writable } from 'stream';
 import { Command } from 'commander';
 import { saveConfig } from '../../core/config';
-import { saveCredentials, CredentialStore } from '../../core/credentials';
+import {
+  saveCredentials,
+  CredentialStore,
+  getCredentialStorageDescription,
+  ensureCredentialStorageSupported
+} from '../../core/credentials';
 import { logger, maskEmail } from '../../core/logger';
 import { launchAmazonWizard } from '../../wizard/browser';
 import { openInSystemBrowser } from '../../wizard/external-browser';
@@ -91,6 +96,7 @@ export function registerConnectCommand(program: Command) {
       let testEpubPath: string | undefined;
 
       try {
+        ensureCredentialStorageSupported();
         const amazonRegion = (options.region || AMAZON_REGION).toLowerCase();
         const amazonSettingsUrl = getAmazonSettingsUrl(amazonRegion);
 
@@ -125,7 +131,7 @@ export function registerConnectCommand(program: Command) {
 
         if (!isJson && options.provider?.toLowerCase() === 'qq') {
           logger.info('\n📮 QQ 邮箱连接向导');
-          logger.info('授权码只会保存在这台电脑的 Windows 当前用户凭据保护区中。');
+          logger.info(`授权码只会保存在这台电脑的${getCredentialStorageDescription()}中。`);
 
           if (!smtpUser) {
             smtpUser = await askQuestion('1. 请输入你的 QQ 邮箱地址（例如 123456@qq.com）: ');
@@ -336,7 +342,7 @@ export function registerConnectCommand(program: Command) {
           deviceVerified: false
         });
         saveCredentials(creds);
-        logger.info('\n🔐 已通过 Windows 当前用户凭据保护安全保存发送配置。');
+        logger.info(`\n🔐 已通过${getCredentialStorageDescription()}安全保存发送配置。`);
 
         const successOutput: MachineOutput = {
           ok: true,

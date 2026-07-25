@@ -1,6 +1,6 @@
 ---
 name: kindle-setup
-description: Configure and verify the local Kindle delivery capability for the current Windows user. Use for first-time setup, QQ SMTP reauthorization, Kindle address or approved-sender changes, capability states other than ready, or repair after kindle capability reports a problem.
+description: Configure and verify the local Kindle delivery capability for the current Windows or macOS user. Use for first-time setup, QQ SMTP reauthorization, Kindle address or approved-sender changes, capability states other than ready, or repair after kindle capability reports a problem.
 ---
 
 # Kindle Setup
@@ -23,7 +23,7 @@ Treat these results differently:
 
 After the user replies `Kindle已收到`, run:
 
-```powershell
+```console
 kindle --json confirm <jobId>
 kindle --json capability
 ```

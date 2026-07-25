@@ -2,7 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { Command } from 'commander';
 import { loadConfig, getConfigPath } from '../../core/config';
-import { loadCredentials } from '../../core/credentials';
+import {
+  ensureCredentialStorageSupported,
+  getCredentialStorageDescription,
+  loadCredentials
+} from '../../core/credentials';
 import { getJobsDir, listRecentJobs } from '../../core/tracker';
 import { logger } from '../../core/logger';
 import { EmailTransport } from '../../transport/email';
@@ -25,6 +29,21 @@ export function registerDoctorCommand(program: Command) {
       logger.setDebug(!!globalOpts.debug);
 
       const checks: DoctorCheckItem[] = [];
+
+      try {
+        ensureCredentialStorageSupported();
+        checks.push({
+          name: '操作系统支持',
+          passed: true,
+          message: `${process.platform === 'darwin' ? 'macOS' : 'Windows'} 安全凭据能力可用`
+        });
+      } catch (err) {
+        checks.push({
+          name: '操作系统支持',
+          passed: false,
+          message: (err as Error).message
+        });
+      }
 
       const capability = getCapabilityStatus();
       checks.push({
@@ -76,7 +95,7 @@ export function registerDoctorCommand(program: Command) {
           checks.push({
             name: '系统凭据读取',
             passed: true,
-            message: 'Windows 当前用户保护的凭据读取成功'
+            message: `${getCredentialStorageDescription()}中的凭据读取成功`
           });
 
           const transportAvailable = await new EmailTransport(creds!).verify();

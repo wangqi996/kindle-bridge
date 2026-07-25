@@ -4,6 +4,7 @@ import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   clearCredentials,
+  ensureCredentialStorageSupported,
   getCredentialsPath,
   loadCredentials,
   saveCredentials
@@ -39,5 +40,11 @@ describe('Windows credential protection', () => {
     expect(stored).not.toContain(credentials.smtpPass);
     expect(stored).not.toContain(credentials.smtpUser);
     expect(loadCredentials()).toEqual(credentials);
+  });
+
+  it('rejects platforms without an implemented system credential store', () => {
+    expect(() => ensureCredentialStorageSupported('linux')).toThrow(
+      '安全凭据存储目前仅支持 Windows 和 macOS'
+    );
   });
 });

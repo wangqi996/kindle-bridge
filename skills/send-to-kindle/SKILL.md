@@ -14,14 +14,14 @@ Keep daily use short. Do not load or repeat first-run setup unless the capabilit
 3. Resolve the exact local input file. If the path is ambiguous, ask only for the file.
 4. Run a local conversion check:
 
-   ```powershell
+   ```console
    kindle --json send "<absolute-file-path>" --dry-run
    ```
 
 5. Report the title and destination mask, then ask the user to approve the real send.
 6. After approval, run:
 
-   ```powershell
+   ```console
    kindle --json send "<absolute-file-path>"
    ```
 

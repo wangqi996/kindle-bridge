@@ -47,9 +47,13 @@ describe('Kindle skills architecture', () => {
     expect(legacyRouterText).toContain('../send-to-kindle/SKILL.md');
   });
 
-  it('ships a one-time current-user bootstrap script', () => {
+  it('ships one-time current-user bootstrap scripts for Windows and macOS', () => {
     const bootstrap = fs.readFileSync(
       path.join(process.cwd(), 'scripts', 'bootstrap.ps1'),
+      'utf-8'
+    );
+    const macBootstrap = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'bootstrap.sh'),
       'utf-8'
     );
     expect(bootstrap).toContain('npm link');
@@ -59,5 +63,9 @@ describe('Kindle skills architecture', () => {
     expect(bootstrap).toContain("'kindle-for-agents'");
     expect(bootstrap).toContain("'kindle-bridge'");
     expect(bootstrap).toContain('kindle --json capability');
+    expect(macBootstrap).toContain('npm link');
+    expect(macBootstrap).toContain('npm uninstall --global kindle-bridge');
+    expect(macBootstrap).toContain('.agents/skills');
+    expect(macBootstrap).toContain('kindle --json capability');
   });
 });
