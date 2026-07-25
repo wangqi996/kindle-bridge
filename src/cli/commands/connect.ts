@@ -165,9 +165,10 @@ export function registerConnectCommand(program: Command) {
           if (!options.agentAssisted) {
             logger.info('\n4. 正在用系统默认浏览器打开 Amazon“管理我的内容和设备”。');
             logger.info(`   如果浏览器没有自动打开，请访问: ${amazonSettingsUrl}`);
-            logger.info('   进入“偏好设置/Preferences”→“个人文档设置/Personal Document Settings”。');
-            logger.info('   在“Send-to-Kindle 电子邮箱设置”中找到你的 Kindle 接收地址。');
-            logger.info(`   在“认可的个人文档电子邮箱列表”中添加 ${maskEmail(smtpUser)}。`);
+            logger.info('   在 “Manage Your Content and Devices” 页面点击右侧英文标签 “Preferences”。');
+            logger.info('   展开 “Personal Document Settings”。');
+            logger.info('   在 “Send-to-Kindle E-Mail Settings” 中找到你的 Kindle 接收地址。');
+            logger.info(`   在 “Approved Personal Document E-mail List” 中添加 ${maskEmail(smtpUser)}。`);
             openInSystemBrowser(amazonSettingsUrl);
           }
 

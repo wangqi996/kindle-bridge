@@ -12,6 +12,7 @@ Deploy the capability only after a real Kindle device or Kindle App receives the
 1. Run `kindle capability --json`.
 2. If `data.state` is `ready`, report that setup is already complete and route document sending to `$send-to-kindle`.
 3. Otherwise read [the first-run state machine](references/first-run-state-machine.md) completely and follow it without skipping a handoff.
+4. Before the first user pause, actively open `https://mail.qq.com/` in a controllable browser or the system browser. Do not replace this action with instructions asking the user to open the page.
 
 ## Completion contract
 
@@ -36,4 +37,6 @@ Finish only when the second command returns `data.state: "ready"`.
 - Ask the user to paste the authorization code only into the one hidden terminal prompt.
 - Ask for permission immediately before any test delivery or Amazon approved-sender change.
 - When browser control is unavailable, show [the QQ settings path diagram](assets/qq-manual-guide.svg) and guide one click at a time.
+- Keep the QQ authorization-code page open after the code is copied. Open Amazon in a new browser tab or window so the QQ page is not replaced.
+- On Amazon.com, use the visible English labels `Preferences`, `Personal Document Settings`, `Send-to-Kindle E-Mail Settings`, and `Approved Personal Document E-mail List`; do not substitute translated labels for click targets.
 - End every pause with one concrete user action and the exact reply phrase that resumes the workflow.
