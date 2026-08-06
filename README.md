@@ -4,6 +4,12 @@ Kindle for Agents 是一个本地优先、可被多个 AI Agent 共用的 Kindle
 
 > Kindle for Agents 是非官方开源项目，与 Amazon 无隶属、赞助或背书关系。Kindle 是 Amazon.com, Inc. 或其关联公司的商标。
 
+## 问题反馈
+
+遇到安装、配置、转换或投送问题，请通过 [Bug 报告模板](https://github.com/wangqi996/kindle-for-agents/issues/new?template=bug_report.yml) 提交；其他建议可在 [Issues](https://github.com/wangqi996/kindle-for-agents/issues) 中提出。
+
+提交前可运行 `kindle --json doctor` 辅助定位，但请先删除输出中的邮箱地址、本机用户名、文件路径和任务编号。**不要提交 QQ 密码、邮箱授权码、Amazon 登录信息、OTP、验证码、二维码内容或其他凭据。**
+
 ## 直接交给 Agent
 
 把下面这句话发给 Agent：
